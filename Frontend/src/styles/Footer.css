@@ -1,0 +1,134 @@
+/* Footer styles */
+.footer-bg {
+  background: #f8f6f3;
+  position: relative;
+  margin-top: 5rem;
+}
+
+.footer-bg::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -50px;
+  width: 100%;
+  height: 50px;
+  background: #f8f6f3;
+  clip-path: polygon(0 100%, 100% 100%, 100% 0);
+}
+
+.footer-bg * {
+  color: #333;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.footer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.footer-section p {
+  line-height: 1.6;
+  margin-top: 1rem;
+  opacity: 0.8;
+}
+
+.footer-section .h3-heading {
+  margin-bottom: 0.5rem;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.footer-link {
+  font-size: 1rem;
+  opacity: 0.8;
+  transition: var(--transition);
+}
+
+.footer-link:hover {
+  opacity: 1;
+  color: var(--antique-brown);
+  transform: translateX(5px);
+}
+
+.footer-section.contact-section .footer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input-container {
+  display: flex;
+  margin-top: 1rem;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-container input[type="email"] {
+  flex: 1;
+  border: none;
+  padding: 0.8rem 1rem;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.input-container button {
+  background: var(--antique-brown);
+  color: var(--white);
+  border: none;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.input-container button:hover {
+  background: var(--black);
+}
+
+.footer-section .social-icons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.footer-section .social-icons a {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8e4dd;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.footer-section .social-icons a:hover {
+  background: var(--antique-brown);
+  color: var(--white);
+  transform: translateY(-3px);
+}
+
+.copyright {
+  padding: 1.5rem 0;
+  background: #e8e4dd;
+  text-align: center;
+}
+
+.copyright p {
+  font-size: 0.9rem;
+  opacity: 0.7;
+} 

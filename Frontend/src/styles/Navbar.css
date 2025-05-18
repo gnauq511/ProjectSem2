@@ -1,0 +1,141 @@
+/* Navbar styles */
+.header {
+  position: sticky;
+  top: 0;
+  background: var(--white);
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.navbar {
+  position: relative;
+  height: 13vh;
+}
+
+.logo {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: var(--transition);
+}
+
+.logo:hover {
+  color: var(--antique-brown);
+}
+
+.nav-icons {
+  gap: 1.5rem;
+}
+
+.icon {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.icon:hover {
+  color: var(--antique-brown);
+}
+
+.navlist {
+  background: #333;
+  position: absolute;
+  top: 100px;
+  right: 150px;
+  width: 15rem;
+  z-index: 5;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  border-radius: 1.5rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease-in-out;
+  box-shadow: var(--box-shadow);
+}
+
+.navlist-active {
+  right: 20px;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.navlist * {
+  font-size: 1.1rem;
+  color: var(--white);
+}
+
+.navlist li a {
+  transition: var(--transition);
+  display: block;
+  padding: 0.5rem 0;
+}
+
+.navlist li a:hover {
+  color: var(--gold-hour);
+  transform: translateX(5px);
+}
+
+.social-icons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-icon-container {
+  position: relative;
+}
+
+.cart-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--antique-brown);
+  color: white;
+  font-size: 0.7rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Media Queries */
+@media screen and (max-width: 768px) {
+  .navbar {
+    height: 10vh;
+  }
+  
+  .nav-icons {
+    gap: 1rem;
+  }
+  
+  .navlist {
+    width: 100%;
+    left: 0;
+    right: 0;
+    top: 10vh;
+    border-radius: 0;
+  }
+  
+  .navlist-active {
+    right: 0;
+  }
+} 

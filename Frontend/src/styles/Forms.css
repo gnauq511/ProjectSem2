@@ -1,0 +1,169 @@
+/* Form Styles */
+.form-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1rem;
+  background-color: #f8f9fa;
+}
+
+.form-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 650px;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form-header h2 {
+  color: var(--antique-brown);
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+.form-header p {
+  color: #777;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.error-message {
+  background-color: #ffe6e6;
+  color: #d8000c;
+  border-radius: 5px;
+  padding: 0.8rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.8rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.form-group label svg {
+  margin-right: 0.5rem;
+  color: var(--antique-brown);
+}
+
+.required {
+  color: #f44336;
+  margin-left: 0.2rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--gold-hour);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(241, 181, 85, 0.2);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Rating Stars */
+.rating-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rating-star {
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #ddd;
+  transition: all 0.2s;
+}
+
+.rating-star:hover,
+.rating-star.active {
+  color: #ffc107;
+  transform: scale(1.1);
+}
+
+/* Button */
+.form-button {
+  width: 100%;
+  padding: 1rem;
+  background: var(--antique-brown);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.form-button:hover {
+  background: #8a2417;
+  transform: translateY(-2px);
+}
+
+.form-button svg {
+  font-size: 0.9rem;
+}
+
+/* Success card */
+.success-card {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--antique-brown);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.success-icon svg {
+  font-size: 2.5rem;
+}
+
+.success-card h2 {
+  color: var(--antique-brown);
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.success-card p {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* Contact Page Styles */.page-container {  background-color: #f8f9fa;  padding: 2rem 1rem 4rem;}.contact-header {  text-align: center;  margin-bottom: 3rem;}.contact-header h1 {  color: var(--antique-brown);  font-size: 2.5rem;  margin-bottom: 0.8rem;}.contact-header p {  color: #777;  max-width: 600px;  margin: 0 auto;}.contact-container {  display: grid;  grid-template-columns: 1fr 1.5fr;  gap: 2rem;  max-width: 1200px;  margin: 0 auto;}.contact-info {  background-color: var(--antique-brown);  color: white;  padding: 2.5rem;  border-radius: 10px;  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);}.contact-info h3 {  font-size: 1.5rem;  margin-bottom: 1rem;}.contact-info > p {  margin-bottom: 2rem;  opacity: 0.8;}.contact-detail {  display: flex;  align-items: flex-start;  gap: 1rem;  margin-bottom: 1.5rem;}.contact-detail svg {  font-size: 1.5rem;  margin-top: 0.3rem;}.contact-detail h4 {  font-size: 1.1rem;  margin-bottom: 0.3rem;}.contact-detail p {  opacity: 0.8;  line-height: 1.6;}.contact-form {  padding: 2.5rem;}/* Responsive */@media (max-width: 992px) {  .contact-container {    grid-template-columns: 1fr;  }}@media (max-width: 576px) {  .form-card {    padding: 1.5rem;  }    .form-header h2 {    font-size: 1.7rem;  }    .rating-star {    font-size: 1.5rem;  }    .contact-header h1 {    font-size: 2rem;  }} 

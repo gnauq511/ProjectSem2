@@ -1,0 +1,207 @@
+/* Base app styles */
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --black: #000;
+  --white: #fff;
+  --gray: #f4f4f4;
+  --gold-hour: #f1B555;
+  --antique-brown: #9b281a;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease-in-out;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Jost", sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex-grow: 1;
+}
+
+a {
+  text-decoration: none;
+  color: var(--black);
+}
+
+li {
+  list-style: none;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.between {
+  justify-content: space-between;
+}
+
+.wrapper {
+  max-width: 1450px;
+  margin: auto;
+  padding: 2rem;
+}
+
+.golden-bg {
+  background: var(--gold-hour);
+}
+
+.brown-bg {
+  background: var(--antique-brown);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.mt {
+  margin-top: 3.5rem;
+}
+
+.p-b {
+  padding-block: 3.5rem;
+}
+
+.gap {
+  gap: 2rem;
+}
+
+.btn {
+  padding: 0.7rem 2rem;
+  font-size: 0.9rem;
+  color: var(--white);
+  text-transform: uppercase;
+  border-radius: 5rem;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+  transition: var(--transition);
+}
+
+.btn:hover {
+  background: var(--black);
+  transform: translateY(-2px);
+}
+
+.h1-heading {
+  font-size: 9rem;
+  text-transform: uppercase;
+  font-weight: 300;
+  line-height: 100%;
+}
+
+.h2-heading {
+  font-size: 3rem;
+  font-weight: 300;
+  line-height: 1.3;
+  max-width: 80%;
+}
+
+.h3-heading {
+  font-size: 2.1rem;
+  font-weight: 200;
+  text-transform: uppercase;
+}
+
+.h5-heading {
+  font-size: 1.5rem;
+  text-transform: capitalize;
+  color: var(--black);
+  font-weight: 500;
+}
+
+.h6-heading {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+span {
+  font-weight: bold;
+}
+
+.big-para {
+  font-size: 1.8rem;
+  font-weight: 300;
+}
+
+.avg-para {
+  font-size: 1.2rem;
+  color: #636363;
+  font-weight: 300;
+  max-width: 70%;
+}
+
+.small-para {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #636363;
+  margin-block: 0.5rem;
+}
+
+/* Media Queries */
+@media screen and (max-width: 1200px) {
+  .h1-heading {
+    font-size: 7rem;
+  }
+  
+  .h2-heading {
+    font-size: 2.5rem;
+    max-width: 100%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .h1-heading {
+    font-size: 5rem;
+  }
+  
+  .h2-heading {
+    font-size: 2rem;
+  }
+  
+  .h3-heading {
+    font-size: 1.8rem;
+  }
+  
+  .big-para {
+    font-size: 1.5rem;
+  }
+  
+  .wrapper {
+    padding: 1rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .h1-heading {
+    font-size: 3.5rem;
+  }
+  
+  .h2-heading {
+    font-size: 1.8rem;
+  }
+  
+  .h3-heading {
+    font-size: 1.5rem;
+  }
+  
+  .big-para {
+    font-size: 1.2rem;
+  }
+} 

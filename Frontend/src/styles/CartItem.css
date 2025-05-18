@@ -1,0 +1,146 @@
+/* CartItem Styles */
+.cart-item {
+  display: grid;
+  grid-template-columns: auto 100px 1fr auto auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.cart-item-select {
+  display: flex;
+  align-items: center;
+}
+
+.cart-item-image {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: #f8f8f8;
+}
+
+.cart-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cart-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.product-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.product-price {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #eee;
+  border-radius: 0.3rem;
+  padding: 0.3rem;
+}
+
+.quantity-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: #f5f5f5;
+  cursor: pointer;
+  border-radius: 0.2rem;
+  transition: var(--transition);
+}
+
+.quantity-btn:hover {
+  background: #e0e0e0;
+}
+
+.quantity-value {
+  width: 30px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.cart-item-total {
+  text-align: right;
+  min-width: 100px;
+}
+
+.item-total {
+  font-weight: 500;
+  color: var(--antique-brown);
+}
+
+.delete-btn {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: #f5f5f5;
+  color: #999;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.delete-btn:hover {
+  background: #ffebee;
+  color: #f44336;
+}
+
+@media screen and (max-width: 768px) {
+  .cart-item {
+    grid-template-columns: auto 80px 1fr;
+    grid-template-rows: auto auto;
+    padding: 1rem;
+  }
+
+  .cart-item-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .cart-item-details {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .quantity-control {
+    grid-column: 2 / span 2;
+    grid-row: 2;
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
+
+  .cart-item-total {
+    grid-column: 3;
+    grid-row: 2;
+    text-align: right;
+    min-width: auto;
+  }
+
+  .delete-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+} 
