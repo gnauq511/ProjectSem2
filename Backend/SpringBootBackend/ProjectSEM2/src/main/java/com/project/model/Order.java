@@ -18,7 +18,8 @@ public class Order {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id", nullable = false) 
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address shippingAddress;
 
     @Column(name = "total_amount", precision = 10, scale = 2)
     private BigDecimal totalAmount;
