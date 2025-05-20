@@ -1,10 +1,12 @@
 package com.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
 @Table(name = "address")
+@JsonIgnoreProperties({"customer", "orders"})
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

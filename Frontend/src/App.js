@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './components/pages/Home';
+import Collection from './components/pages/Collection';
+import ProductDetail from './components/pages/ProductDetail';
 import FeedbackForm from './components/pages/FeedbackForm';
 import ContactForm from './components/pages/ContactForm';
 import AboutUs from './components/pages/AboutUs';
@@ -69,6 +71,8 @@ function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/collection" element={<Collection />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/feedback" element={<FeedbackForm />} />
             <Route path="/contact" element={<ContactForm />} />
             <Route path="/about" element={<AboutUs />} />

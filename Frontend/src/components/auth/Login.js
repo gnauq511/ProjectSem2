@@ -24,38 +24,37 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Basic validation
+    // Enhanced validation
     if (!username || !password) {
       setError('Please fill in all fields');
       return;
     }
-    
+
+    if(username.length < 6){
+      setError('Username must be at least 6 characters long');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
     
     try {
       setLoading(true);
       setError('');
-      
-      // Make API call to authenticate user
       const response = await api.post('/auth/login', {
         username,
         password,
         rememberMe
       });
       
-      console.log('Login successful:', response.data);
-      
-      // If backend uses session cookies, a successful response means authentication is done.
-      // The browser will handle the session cookie automatically.
-      if (response.data?.result === true || (response.status >= 200 && response.status < 300)) {
-        // Optional: If you still want to use `rememberMe` to inform the backend
-        // to set a persistent session cookie, ensure `rememberMe` is sent in the request payload.
-        // The current backend call already includes it.
+      console.log('Login response:', response.data);
 
-        // Redirect to home page or dashboard
+      // Check if the login was actually successful by examining the result field
+      if (response.data?.result === true) {
         navigate('/');
       } else {
-        // Handle cases where login might not be truly successful despite a 2xx response
-        // or if response.data.result is explicitly false.
         setError(
           response.data?.message ||
           'Login failed. Please check your credentials and try again.'

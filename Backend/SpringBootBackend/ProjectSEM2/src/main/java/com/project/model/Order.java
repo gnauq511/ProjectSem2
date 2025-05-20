@@ -1,5 +1,6 @@
 package com.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -7,6 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders") // Diagram uses "Order"
+@JsonIgnoreProperties({"customer", "shippingAddress", "orderItems", "payments"})
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

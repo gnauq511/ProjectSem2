@@ -1,11 +1,13 @@
 package com.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "cart")
+@JsonIgnoreProperties({"customer"})
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

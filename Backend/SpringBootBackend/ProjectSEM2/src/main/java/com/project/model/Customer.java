@@ -1,10 +1,12 @@
 package com.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
 @Table(name = "customer")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,6 +72,28 @@ public class Customer {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
-
+    
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+    
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
+    
+    public List<Cart> getCarts() {
+        return carts;
+    }
+    
+    public void setCarts(List<Cart> carts) {
+        this.carts = carts;
+    }
+    
+    public List<Order> getOrders() {
+        return orders;
+    }
+    
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
 }

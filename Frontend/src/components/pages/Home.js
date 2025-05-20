@@ -1,27 +1,51 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faShoppingBag } from '@fortawesome/free-solid-svg-icons';
 import { CartContext } from '../../App';
+import ProductItem from '../common/ProductItem';
+import api from '../../services/api';
 import '../../styles/Home.css';
 
-// Import sample product data - in a real app would come from API
-import data from '../../data/products.json';
+
 
 const Home = () => {
   const { addToCart } = useContext(CartContext);
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([
-    { id: 1, name: 'seating', active: false },
-    { id: 2, name: 'lighting', active: false },
-    { id: 3, name: 'table', active: false },
-    { id: 4, name: 'accessories', active: false }
-  ]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
-  // Simulate fetching products
+  // Fetch data from API
   useEffect(() => {
-    // In a real app, this would be an API call
-    setProducts(data.products);
+    const fetchData = async () => { 
+      try {
+        setLoading(true);
+        
+        // Fetch categories
+        const categoriesResponse = await api.get('/categories');
+        const categoriesData = categoriesResponse.data;
+        setCategories(categoriesData.map(cat => ({
+          id: cat.id,
+          name: cat.name.toLowerCase(),
+          active: false
+        })));
+        
+        // Fetch products
+        const productsResponse = await api.get('/products');
+        const productsData = productsResponse.data;
+        setProducts(productsData);
+        
+        setLoading(false);
+      } catch(err) {
+        console.error('Error fetching data:', err);
+        setError(err.message);
+        setLoading(false);
+        
+        
+      }
+    };
+    fetchData();
   }, []);
   
   // Filter products by category
@@ -82,14 +106,14 @@ const Home = () => {
           </div>
 
           <div className="categories flex gap mt">
-            {categories.map(category => (
+            {categories.slice(0, 4).map(cat => (
               <div 
-                key={category.id} 
-                className={`category-card ${category.active ? 'active' : ''}`}
-                onClick={() => filterByCategory(category.id)}
+                key={cat.id} 
+                className={`category-card ${cat.active ? 'active' : ''}`}
+                onClick={() => filterByCategory(cat.id)}
               >
                 <div className="flex between">
-                  <h5 className="h5-heading">{category.name}</h5>
+                  <h5 className="h5-heading">{cat.name}</h5>
                   <div className="simple-icon brown-bg">
                     <FontAwesomeIcon icon={faArrowRight} />
                   </div>
@@ -149,24 +173,12 @@ const Home = () => {
           </p>
 
           <div className="products-grid mt">
-            {filteredProducts.slice(0, 8).map(product => (
-              <div className="product-card" key={product.id}>
-                <div className="product-image">
-                  <img src={`/${product.image}`} alt={product.name} />
-                  <button 
-                    className="btn brown-bg"
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    add to cart
-                  </button>
-                </div>
-
-                <div className="product-info">
-                  <small>{product.category}</small>
-                  <h6 className="h6-heading">{product.name}</h6>
-                  <p className="price">₫{parseInt(product.price.replace(/\D/g, '')).toLocaleString()}</p>
-                </div>
-              </div>
+            {filteredProducts.slice(0, 5).map(product => (
+              <ProductItem 
+                key={product.id} 
+                product={product} 
+                onAddToCart={handleAddToCart} 
+              />
             ))}
           </div>
 
