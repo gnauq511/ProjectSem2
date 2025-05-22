@@ -37,7 +37,10 @@ public class User {
 
     // @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     // private Customer customer;
-
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
     public User(Long id, String username) {
         this.id = id;
         this.username = username;

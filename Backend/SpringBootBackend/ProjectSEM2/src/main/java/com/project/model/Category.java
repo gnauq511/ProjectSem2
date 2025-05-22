@@ -11,8 +11,9 @@ public class Category {
 
     private String name;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("category")
+    // Removed bidirectional relationship with Product
+    // This is now a unidirectional relationship where Product has categoryId
+    @Transient
     private List<Product> products;
 
     public Long getId() {

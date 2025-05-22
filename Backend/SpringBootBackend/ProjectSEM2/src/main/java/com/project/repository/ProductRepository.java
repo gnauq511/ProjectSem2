@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId AND " +
+    @Query("SELECT p FROM Product p WHERE p.categoryId = :categoryId AND " +
            "(LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<Product> findByCategoryIdAndKeyword(@Param("categoryId") Long categoryId, @Param("keyword") String keyword);

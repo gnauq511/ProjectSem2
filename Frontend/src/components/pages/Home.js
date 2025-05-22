@@ -152,7 +152,7 @@ const Home = () => {
                     id: 'featured-bed',
                     name: 'Premium Oak Bed',
                     price: '1500',
-                    image: '/images/bed.png',
+                    image: '/images/bed.png', // This is a local image path
                     category: 'furniture'
                   })}
                 >

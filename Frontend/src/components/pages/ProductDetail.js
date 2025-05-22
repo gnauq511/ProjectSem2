@@ -54,6 +54,7 @@ const ProductDetail = () => {
       fetchProduct();
     }
   }, [id]);
+  window.scrollTo(0, 0);
 
   const handleQuantityChange = (delta) => {
     setQuantity(prev => Math.max(1, prev + delta));
@@ -92,26 +93,28 @@ const ProductDetail = () => {
     return stars;
   };
 
-  // Generate product images (in a real app, would use actual images from the API)
+  // Get all product images
   const getProductImages = () => {
     if (!product) return [];
     
-    // If product has multiple images, use those
-    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-      return product.images;
-    }
-    
-    // Otherwise, use the main image and some placeholders
+    // Create an array to store all product images
     const images = [];
-    if (product.image) {
-      images.push(`/${product.image}`);
-    } else {
-      images.push('/images/placeholder.png');
-    }
     
-    // Add some placeholder variations (in a real app, these would be actual product images)
-    for (let i = 1; i < 4; i++) {
-      images.push(`/images/placeholder${i}.png`);
+    // Check if the product has multiple image URLs in the database
+    if (product.image) {
+      // Add the main image
+      images.push(product.image);
+      
+      // Check if product has imageView2, imageView3, imageView4 properties
+      if (product.imageView2) images.push(product.imageView2);
+      if (product.imageView3) images.push(product.imageView3);
+      if (product.imageView4) images.push(product.imageView4);
+    } else {
+      // Fallback to placeholder images
+      images.push('/images/placeholder.png');
+      for (let i = 1; i < 4; i++) {
+        images.push(`/images/placeholder${i}.png`);
+      }
     }
     
     return images;
@@ -163,8 +166,16 @@ const ProductDetail = () => {
                   key={index}
                   className={`thumbnail ${activeImage === index ? 'active' : ''}`}
                   onClick={() => setActiveImage(index)}
+                  data-view={`View ${index + 1}`}
                 >
-                  <img src={img} alt={`${product.name} - view ${index + 1}`} />
+                  <img 
+                    src={img} 
+                    alt={`${product.name} - view ${index + 1}`} 
+                    onError={(e) => {
+                      e.target.src = '/images/placeholder.png'; // Fallback image
+                      console.warn("Failed to load image:", img);
+                    }}
+                  />
                 </div>
               ))}
             </div>
@@ -270,8 +281,9 @@ const ProductDetail = () => {
                 >
                   <div className="related-product-image">
                     <img 
-                      src={relatedProduct.image ? `/${relatedProduct.image}` : '/images/placeholder.png'} 
+                      src={relatedProduct.image ? relatedProduct.image : '/images/placeholder.png'} 
                       alt={relatedProduct.name} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </div>
                   <div className="related-product-info">

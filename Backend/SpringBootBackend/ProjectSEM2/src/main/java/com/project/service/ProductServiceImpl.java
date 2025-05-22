@@ -5,7 +5,6 @@ import com.project.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List; // Ensure List is imported
 import java.util.Collections; // For returning empty list
 
@@ -56,9 +55,9 @@ public class ProductServiceImpl implements ProductService {
         if (productDetails.getStockQuantity() != null) {
             product.setStockQuantity(productDetails.getStockQuantity());
         }
-        if (productDetails.getCategory() != null) {
+        if (productDetails.getCategoryId() != null) {
             // Assuming Category handling is managed correctly elsewhere or is simple
-            product.setCategory(productDetails.getCategory());
+            product.setCategoryId(productDetails.getCategoryId());
         }
         // Add other fields to update as necessary
 

@@ -57,6 +57,9 @@
 .thumbnail-gallery {
   display: flex;
   gap: 15px;
+  flex-wrap: wrap; /* Allow wrapping for multiple thumbnails */
+  justify-content: flex-start;
+  margin-top: 15px;
 }
 
 .thumbnail {
@@ -66,12 +69,15 @@
   overflow: hidden;
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity 0.3s, transform 0.3s;
+  transition: opacity 0.3s, transform 0.3s, box-shadow 0.3s;
+  border: 1px solid #e0e0e0;
+  position: relative;
 }
 
 .thumbnail:hover {
   opacity: 0.9;
   transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .thumbnail.active {
@@ -83,6 +89,19 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Add view number indicator */
+.thumbnail::after {
+  content: attr(data-view);
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(139, 90, 43, 0.7);
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-top-left-radius: 4px;
 }
 
 /* Product Info */

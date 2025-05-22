@@ -1,10 +1,8 @@
 package com.project.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal; // Added for price
-import java.util.List;     // Added for relationships
 
 @Entity
 public class Product {
@@ -21,28 +19,27 @@ public class Product {
     @Column(precision = 10, scale = 2) // Matches diagram price DECIMAL
     private BigDecimal price;
 
-    @Column(name = "image_url") // Matches diagram image_url
+    @Column(name = "image_url") // Main product image
     private String image;
+    
+    @Column(name = "image_view_2") // Second view of the product
+    private String imageView2;
+    
+    @Column(name = "image_view_3") // Third view of the product
+    private String imageView3;
+    
+    @Column(name = "image_view_4") // Fourth view of the product
+    private String imageView4;
 
     @Column(name = "stock_quantity") // New field from diagram
     private Integer stockQuantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id") // Matches diagram category_id (FK)
-    @JsonIgnoreProperties({"products", "hibernateLazyInitializer", "handler"})
-    private Category category;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("product")
-    private List<CartItem> cartItems;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("product")
-    private List<OrderItem> orderItems;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("product")
-    private List<Review> reviews;
+    // Category relationship - simplified to avoid circular dependencies
+    @Column(name = "category_id")
+    private Long categoryId;
+    
+    @Transient
+    private String categoryName;
 
     // Getters and Setters
     public Long getId() {
@@ -84,6 +81,30 @@ public class Product {
     public void setImage(String image) {
         this.image = image;
     }
+    
+    public String getImageView2() {
+        return imageView2;
+    }
+
+    public void setImageView2(String imageView2) {
+        this.imageView2 = imageView2;
+    }
+
+    public String getImageView3() {
+        return imageView3;
+    }
+
+    public void setImageView3(String imageView3) {
+        this.imageView3 = imageView3;
+    }
+
+    public String getImageView4() {
+        return imageView4;
+    }
+
+    public void setImageView4(String imageView4) {
+        this.imageView4 = imageView4;
+    }
 
     public Integer getStockQuantity() {
         return stockQuantity;
@@ -93,35 +114,19 @@ public class Product {
         this.stockQuantity = stockQuantity;
     }
 
-    public Category getCategory() {
-        return category;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
-
-    public List<CartItem> getCartItems() {
-        return cartItems;
+    
+    public String getCategoryName() {
+        return categoryName;
     }
-
-    public void setCartItems(List<CartItem> cartItems) {
-        this.cartItems = cartItems;
-    }
-
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
-    }
-
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
+    
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }
