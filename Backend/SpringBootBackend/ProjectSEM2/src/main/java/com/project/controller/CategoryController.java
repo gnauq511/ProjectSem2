@@ -2,12 +2,11 @@ package com.project.controller;
 
 import com.project.model.Category;
 import com.project.service.CategoryService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
@@ -26,9 +25,56 @@ public class CategoryController {
     public List<Category> getAllCategories() {
         return categoryService.getAllCategories();
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCategoryById(@PathVariable Long id) {
+        try {
+            Category category = categoryService.getCategoryById(id);
+            return ResponseEntity.ok(category);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
     @PostMapping
-    public Category createCategory(@RequestBody Category category) {
-        return categoryService.createCategory(category);
+    public ResponseEntity<?> createCategory(@RequestBody Category category) {
+        try {
+            Category createdCategory = categoryService.createCategory(category);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to create category: " + e.getMessage());
+        }
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody Category categoryDetails) {
+        try {
+            Category updatedCategory = categoryService.updateCategory(id, categoryDetails);
+            return ResponseEntity.ok(updatedCategory);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update category: " + e.getMessage());
+        }
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+        try {
+            categoryService.deleteCategory(id);
+            return ResponseEntity.ok("Category deleted successfully with id: " + id);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete category: " + e.getMessage());
+        }
+    }
+    
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleEntityNotFound(EntityNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

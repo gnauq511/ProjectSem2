@@ -35,15 +35,16 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    // @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
     // private Customer customer;
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-    public User(Long id, String username) {
+    public User(Long id, String username, String role) {
         this.id = id;
         this.username = username;
+        this.role = role;
     }
 
     public User() {
@@ -98,11 +99,4 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    // public Customer getCustomer() {
-    //     return customer;
-    // }
-
-    // public void setCustomer(Customer customer) {
-    //     this.customer = customer;
-    // }
 }

@@ -44,10 +44,12 @@ public class UserService {
             if(PasswordEncryptor.encryptPasswordMD5(user.getPassword())
                     .equals(existingPassword)) {
 
+                User loggedInUser = existingUser.get();
                 resultUser.setResult(true);
                 resultUser.setData(new User(
-                        existingUser.get().getId(),
-                        existingUser.get().getUsername()
+                        loggedInUser.getId(),
+                        loggedInUser.getUsername(),
+                        loggedInUser.getRole()
                 ));
 
                 return resultUser;

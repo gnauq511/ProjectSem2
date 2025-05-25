@@ -5,10 +5,12 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "category")
 public class Category {
     @Id
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     // Removed bidirectional relationship with Product

@@ -257,13 +257,12 @@ const ProductDetail = () => {
             <div className="tab-header active">Description</div>
             <div className="tab-header">Specifications</div>
             <div className="tab-header">Reviews</div>
-          </div>
+          </div> 
           
           <div className="tab-content">
             <div className="tab-pane active">
               <h3>Product Description</h3>
-              <p>{product.longDescription || product.description}</p>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Sed euismod, nisl eget aliquam ultricies, nisl nisl aliquet nisl, eget aliquam nisl nisl eget nisl. Sed euismod, nisl eget aliquam ultricies, nisl nisl aliquet nisl, eget aliquam nisl nisl eget nisl.</p>
+              <p>{product.description}</p>
             </div>
           </div>
         </div>

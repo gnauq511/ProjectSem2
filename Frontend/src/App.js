@@ -1,5 +1,5 @@
 import React, { useState, createContext } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './components/pages/Home';
@@ -11,13 +11,22 @@ import AboutUs from './components/pages/AboutUs';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import CartPage from './components/pages/CartPage';
+import AdminLogin from './components/admin/AdminLogin';
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
+import ScrollToTop from './services/scrollToTop';
 import './styles/App.css';
+import './styles/Admin.css';
 
 // Create cart context for global state management
 export const CartContext = createContext();
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
+  const location = useLocation();
+  
+  // Check if current route is an admin route
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   // Cart functions
   const addToCart = (product) => {
@@ -67,8 +76,9 @@ function App() {
       setCartItems 
     }}>
       <div className="app">
-        <Navbar />
-        <main className="main-content">
+        {!isAdminRoute && <Navbar />}
+        <ScrollToTop />
+        <main className={isAdminRoute ? "admin-main-content" : "main-content"}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/collection" element={<Collection />} />
@@ -79,9 +89,15 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/cart" element={<CartPage />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route element={<AdminProtectedRoute />}>
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            </Route>
           </Routes>
         </main>
-        <Footer />
+        {!isAdminRoute && <Footer />}
       </div>
     </CartContext.Provider>
   );
