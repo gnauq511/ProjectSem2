@@ -13,6 +13,7 @@ import java.util.Collections; // Import for Collections.emptyList()
 
 @RestController
 @RequestMapping("/api/products")
+@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
 public class ProductController {
 
     private final ProductService productService;

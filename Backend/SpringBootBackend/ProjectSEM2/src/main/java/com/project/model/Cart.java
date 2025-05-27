@@ -8,7 +8,7 @@ import java.util.List;
 @Entity
 @Table(name = "cart")
 @JsonIgnoreProperties({"customer"})
-public class Cart {
+public class    Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cart_id")

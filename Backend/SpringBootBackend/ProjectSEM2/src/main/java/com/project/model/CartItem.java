@@ -1,11 +1,12 @@
 package com.project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "cart_item")
-@JsonIgnoreProperties({"cart", "product"})
+@JsonIgnoreProperties({"cart"})
 public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +17,7 @@ public class CartItem {
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER) // Changed to EAGER to prevent lazy loading issues
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 

@@ -7,6 +7,12 @@ import '../../styles/CartItem.css';
 const CartItem = ({ item }) => {
   const { toggleSelected, updateQuantity, removeFromCart } = useContext(CartContext);
   
+  // Get product data from item
+  const product = item.product || {};
+  const productName = item.name || product.name || 'Product';
+  const productPrice = item.price || product.price || 0;
+  const productImage = item.image || product.image || '/images/placeholder.png';
+  
   // Format price to currency
   const formatPrice = (price) => {
     // Handle both string and number formats
@@ -19,9 +25,9 @@ const CartItem = ({ item }) => {
   
   // Calculate item total
   const itemTotal = item.quantity * (
-    typeof item.price === 'string' 
-      ? parseInt(item.price.replace(/\D/g, ''))
-      : item.price
+    typeof productPrice === 'string' 
+      ? parseInt(productPrice.replace(/\D/g, ''))
+      : productPrice
   );
 
   return (
@@ -39,15 +45,23 @@ const CartItem = ({ item }) => {
 
       <div className="cart-item-image">
         <img 
-          src={item.image.startsWith('/') ? item.image : `/${item.image}`} 
-          alt={item.name} 
-          className="cart-img" 
+          src={productImage && productImage.startsWith('http') 
+            ? productImage 
+            : productImage && productImage.startsWith('/') 
+              ? productImage 
+              : `/${productImage}`} 
+          alt={productName} 
+          className="cart-img"
+          onError={(e) => {
+            e.target.src = '/images/placeholder.png';
+            console.warn("Failed to load image:", productImage);
+          }} 
         />
       </div>
 
       <div className="cart-item-details">
-        <h3 className="product-name">{item.name}</h3>
-        <p className="product-price">₫{formatPrice(item.price)}</p>
+        <h3 className="product-name">{productName}</h3>
+        <p className="product-price">₫{formatPrice(productPrice)}</p>
       </div>
 
       <div className="quantity-control">

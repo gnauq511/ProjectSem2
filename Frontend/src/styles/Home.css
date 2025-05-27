@@ -211,35 +211,20 @@
   justify-content: center;
 }
 
-.product-image:after {
-  content: "Product Image";
-  color: #999;
-}
+/* Removed product image placeholder text */
 
 .product-image img {
-  display: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .product-card:hover .product-image {
   background-color: #e0e0e0;
 }
 
-.product-image .btn {
-  position: absolute;
-  bottom: -50px;
-  left: 0;
-  right: 0;
-  margin: auto;
-  width: max-content;
-  transition: bottom 0.3s ease-in-out;
-  opacity: 0;
-  z-index: 2;
-}
-
-.product-card:hover .product-image .btn {
-  bottom: 20px;
-  opacity: 1;
-}
+/* Button styling moved to ProductItem.css */
 
 .price {
   font-weight: 600;

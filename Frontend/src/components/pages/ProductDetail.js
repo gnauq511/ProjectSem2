@@ -35,7 +35,6 @@ const ProductDetail = () => {
         if (response.data.category && response.data.category.id) {
           const categoryId = response.data.category.id;
           const relatedResponse = await api.get(`/products?categoryId=${categoryId}`);
-          // Filter out the current product and limit to 4 products
           const filtered = relatedResponse.data
             .filter(p => p.id !== response.data.id)
             .slice(0, 4);
@@ -62,11 +61,9 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (product) {
-      // Add product to cart with selected quantity
       for (let i = 0; i < quantity; i++) {
         addToCart(product);
       }
-      // Could add a toast notification here
     }
   };
 
@@ -74,7 +71,6 @@ const ProductDetail = () => {
     navigate(-1);
   };
 
-  // Render star rating
   const renderRating = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -93,24 +89,18 @@ const ProductDetail = () => {
     return stars;
   };
 
-  // Get all product images
   const getProductImages = () => {
     if (!product) return [];
     
-    // Create an array to store all product images
     const images = [];
     
-    // Check if the product has multiple image URLs in the database
     if (product.image) {
-      // Add the main image
       images.push(product.image);
-      
-      // Check if product has imageView2, imageView3, imageView4 properties
       if (product.imageView2) images.push(product.imageView2);
       if (product.imageView3) images.push(product.imageView3);
       if (product.imageView4) images.push(product.imageView4);
-    } else {
-      // Fallback to placeholder images
+    } 
+    else {
       images.push('/images/placeholder.png');
       for (let i = 1; i < 4; i++) {
         images.push(`/images/placeholder${i}.png`);
@@ -166,7 +156,6 @@ const ProductDetail = () => {
                   key={index}
                   className={`thumbnail ${activeImage === index ? 'active' : ''}`}
                   onClick={() => setActiveImage(index)}
-                  data-view={`View ${index + 1}`}
                 >
                   <img 
                     src={img} 

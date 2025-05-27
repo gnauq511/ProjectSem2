@@ -31,7 +31,7 @@
   transform: scale(1.05);
 }
 
-.product-image button {
+.product-image .add-to-cart-btn {
   position: absolute;
   bottom: -40px;
   left: 0;
@@ -47,9 +47,10 @@
   cursor: pointer;
   transition: bottom 0.3s ease, background-color 0.3s ease;
   opacity: 0;
+  z-index: 2;
 }
 
-.product-card:hover .product-image button {
+.product-card:hover .product-image .add-to-cart-btn {
   bottom: 15px;
   opacity: 1;
 }
@@ -99,7 +100,7 @@
     height: 180px;
   }
   
-  .product-image button {
+  .product-image .add-to-cart-btn {
     bottom: 15px;
     opacity: 1;
     width: 90%;

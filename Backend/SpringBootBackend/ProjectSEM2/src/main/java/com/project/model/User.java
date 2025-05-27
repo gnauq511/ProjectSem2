@@ -34,8 +34,11 @@ public class User {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-
+    
+    // Transient field to store customer ID for API responses
+    @Transient
+    private Long customerId;
+    
     // private Customer customer;
     @PrePersist
     protected void onCreate() {
@@ -45,6 +48,7 @@ public class User {
         this.id = id;
         this.username = username;
         this.role = role;
+        this.customerId = null;
     }
 
     public User() {
@@ -97,6 +101,14 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+    
+    public Long getCustomerId() {
+        return customerId;
+    }
+    
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
 }

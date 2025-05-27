@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../../App';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -7,13 +7,16 @@ import {
   faUser, 
   faShoppingBag, 
   faBars, 
-  faTimes 
+  faTimes,
+  faSignOutAlt 
 } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/Navbar.css';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { cartItems } = useContext(CartContext);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { cartItems, currentUser, setCurrentUser, setCartItems } = useContext(CartContext);
+  const navigate = useNavigate();
   
   // Close menu when clicking outside
   useEffect(() => {
@@ -21,17 +24,47 @@ const Navbar = () => {
       if (menuOpen && !e.target.closest('.navlist') && !e.target.closest('#menu')) {
         setMenuOpen(false);
       }
+      if (showUserMenu && !e.target.closest('.user-menu') && !e.target.closest('.user-icon')) {
+        setShowUserMenu(false);
+      }
     };
     
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [menuOpen]);
+  }, [menuOpen, showUserMenu]);
 
   // Total items in cart
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
+  };
+  
+  const toggleUserMenu = () => {
+    setShowUserMenu(!showUserMenu);
+  };
+  
+  // Handle cart icon click - only fetch cart items when needed
+  const handleCartClick = () => {
+    // If we have a fetchCartItems function in the context, call it
+    if (currentUser?.customerId && window.fetchCartItems) {
+      window.fetchCartItems();
+    }
+    navigate('/cart');
+  };
+  
+  const handleLogout = () => {
+    // Clear user data from localStorage
+    localStorage.removeItem('currentUser');
+    
+    // Clear user data from context
+    setCurrentUser(null);
+    
+    // Clear cart items
+    setCartItems([]);
+    
+    // Redirect to home page
+    navigate('/');
   };
 
   return (
@@ -69,16 +102,42 @@ const Navbar = () => {
               <FontAwesomeIcon icon={faSearch} />
             </Link>
           </li>
-          <li>
-            <Link to="/login" className="icon">
+          <li className="user-icon-container">
+            <div className="icon user-icon" onClick={toggleUserMenu}>
               <FontAwesomeIcon icon={faUser} />
-            </Link>
+            </div>
+            {showUserMenu && (
+              <div className="user-menu">
+                {currentUser ? (
+                  <>
+                    <div className="user-menu-item user-info">
+                      <span>Hi, {currentUser.username}</span>
+                    </div>
+                    <Link to="/profile" className="user-menu-item">
+                      <FontAwesomeIcon icon={faUser} /> Profile
+                    </Link>
+                    <div className="user-menu-item" onClick={handleLogout}>
+                      <FontAwesomeIcon icon={faSignOutAlt} /> Logout
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" className="user-menu-item">
+                      Login
+                    </Link>
+                    <Link to="/register" className="user-menu-item">
+                      Register
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
           </li>
           <li className="nav-item cart-icon-container">
-            <Link to="/cart" className="icon">
+            <div onClick={handleCartClick} className="icon" style={{ cursor: 'pointer' }}>
               <FontAwesomeIcon icon={faShoppingBag} />
               {cartItemCount > 0 && <span className="cart-count">{cartItemCount}</span>}
-            </Link>
+            </div>
           </li>
 
           <li>

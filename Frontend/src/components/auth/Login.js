@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock} from '@fortawesome/free-solid-svg-icons';
 import api from '../../services/api';
+import { CartContext } from '../../App';
 import '../../styles/Auth.css';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { setCurrentUser } = useContext(CartContext);
 
   // Display success message if redirected from register page
   useEffect(() => {
@@ -45,15 +46,38 @@ const Login = () => {
       setError('');
       const response = await api.post('/auth/login', {
         username,
-        password,
-        rememberMe
+        password
       });
       
       console.log('Login response:', response.data);
 
       // Check if the login was actually successful by examining the result field
       if (response.data?.result === true) {
-        navigate('/');
+        // Use the user data from the data field in the response
+        const userData = response.data.data;
+        
+        if (userData) {
+          // Store user data in localStorage and context
+          const userToStore = {
+            id: userData.id,
+            username: userData.username,
+            customerId: userData.customerId,
+            role: userData.role
+          };
+          
+          // Log the customer ID for debugging
+          console.log('Customer ID from backend:', userData.customerId);
+          
+          console.log('Storing user data:', userToStore);
+          localStorage.setItem('currentUser', JSON.stringify(userToStore));
+          setCurrentUser(userToStore);
+          
+          // Navigate to home page
+          navigate('/');
+        } else {
+          console.error('No user data in login response');
+          setError('Login successful but user data is missing');
+        }
       } else {
         setError(
           response.data?.message ||
