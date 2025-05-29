@@ -71,8 +71,22 @@ public class CartService {
                 cart = optionalCart.get();
                 System.out.println("Found cart with ID: " + cart.getId());
             } else {
-                System.err.println("Cart not found for customer ID: " + customerId);
-                throw new RuntimeException("Cart not found for customer ID: " + customerId);
+                System.out.println("No cart found for customer ID: " + customerId + ". Creating a new cart.");
+                
+                // Find the customer
+                Optional<Customer> customerOpt = customerRepository.findById(customerId);
+                if (!customerOpt.isPresent()) {
+                    System.err.println("Customer not found with ID: " + customerId);
+                    throw new RuntimeException("Customer not found with ID: " + customerId);
+                }
+                
+                // Create a new cart for the customer
+                Customer customer = customerOpt.get();
+                cart = new Cart();
+                cart.setCustomer(customer);
+                cart.setCreatedAt(LocalDateTime.now());
+                cart = cartRepository.save(cart);
+                System.out.println("Created new cart with ID: " + cart.getId());
             }
 
             // Get the product

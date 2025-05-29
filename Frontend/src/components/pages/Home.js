@@ -83,7 +83,7 @@ const Home = () => {
       <section className="hero-section wrapper flex">
         <div className="hero-content">
           <h1 className="h1-heading">
-            <span>inova</span>tion
+            <span>Fash</span>ion
           </h1>
 
           <p className="big-para">
@@ -128,8 +128,8 @@ const Home = () => {
       <section>
         <div className="wrapper p-b">
           <h2 className="h2-heading gradient-txt">
-            Our <span>bed</span> collection blends modern Scandinavian design with sculptural forms, enhancing
-            any space with <span>Comfort</span> and <span>Style</span>.
+          "At <span>Thread & Co.</span>, we believe fashion is self-expression. Every piece is <span>Handpicked</span>
+          to help you stand out, <span>Feel confident</span>, and stay true to who you are — wherever <span>Life</span> takes you."
           </h2>
 
           <div className="bed-image mt">
@@ -152,7 +152,7 @@ const Home = () => {
                     id: 'featured-bed',
                     name: 'Premium Oak Bed',
                     price: '1500',
-                    image: '/images/bed.png', // This is a local image path
+                    image: '/images/bed.png', 
                     category: 'furniture'
                   })}
                 >

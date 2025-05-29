@@ -15,7 +15,7 @@ const Footer = () => {
       <div className="footer-wrapper wrapper">
         <div className="footer-container">
           <div className="footer-section about-section">
-            <h3 className="h3-heading">hihihi</h3>
+            <h3 className="h3-heading">Thread & Co.</h3>
             <p>
               Our furniture collection blends modern Scandinavian design with sculptural forms, 
               enhancing any space with comfort and style.

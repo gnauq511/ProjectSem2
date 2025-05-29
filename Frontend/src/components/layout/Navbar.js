@@ -70,7 +70,7 @@ const Navbar = () => {
   return (
     <header className="header">
       <nav className="navbar flex between wrapper">
-        <Link to="/" className="logo">hihihi</Link>
+        <Link to="/" className="logo">Thread & Co.</Link>
 
         <ul className={`navlist ${menuOpen ? 'navlist-active' : ''}`} id="list">
           <li><Link to="/collection" className="link">Collection</Link></li>
