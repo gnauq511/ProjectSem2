@@ -3,8 +3,10 @@ package com.project.config;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,28 +17,61 @@ import java.util.Map;
 @Configuration
 public class PayPalConfig {
     private static final Logger logger = LoggerFactory.getLogger(PayPalConfig.class);
+    
+    @Autowired
+    private Dotenv dotenv;
 
-    // Use these sandbox credentials - these are standard test credentials
-    @Value("${paypal.client.id:AZBCjv9QIyemM7GGPfoMPTepMfpkPFcdIgp-mEyKj-LOvBNNRs1z_Q3wTiTDvMKqc4RfZEDGtWcWJ8Pt}")
-    private String clientId;
+    // Use environment variables or fallback to properties
+    @Value("${paypal.client.id:}")
+    private String clientIdFromProps;
 
-    @Value("${paypal.client.secret:EJAkYiGv9zKUBVUHMQIbhvPVzcWRFSvv-lzOafnI8_AgHhbQ1VKjWK7HaMZhAyuqZ2pU_NVEot6QNjSL}")
-    private String clientSecret;
+    @Value("${paypal.client.secret:}")
+    private String clientSecretFromProps;
 
     @Value("${paypal.mode:sandbox}")
-    private String mode;
+    private String modeFromProps;
+
+    // Get client ID from environment variable or fallback to properties
+    private String getClientId() {
+        String envClientId = dotenv.get("PAYPAL_CLIENT_ID");
+        if (envClientId != null && !envClientId.isEmpty()) {
+            return envClientId;
+        }
+        return clientIdFromProps;
+    }
+    
+    // Get client secret from environment variable or fallback to properties
+    private String getClientSecret() {
+        String envClientSecret = dotenv.get("PAYPAL_CLIENT_SECRET");
+        if (envClientSecret != null && !envClientSecret.isEmpty()) {
+            return envClientSecret;
+        }
+        return clientSecretFromProps;
+    }
+    
+    // Get mode from environment variable or fallback to properties
+    private String getMode() {
+        String envMode = dotenv.get("PAYPAL_MODE");
+        if (envMode != null && !envMode.isEmpty()) {
+            return envMode;
+        }
+        return modeFromProps;
+    }
 
     @Bean
     public Map<String, String> paypalSdkConfig() {
         Map<String, String> configMap = new HashMap<>();
-        configMap.put("mode", mode);
+        configMap.put("mode", getMode());
         return configMap;
     }
 
     @Bean
     public OAuthTokenCredential oAuthTokenCredential() {
+        String clientId = getClientId();
+        String clientSecret = getClientSecret();
+        
         logger.info("Initializing PayPal OAuth credentials with client ID: {}... and mode: {}", 
-                 clientId.substring(0, Math.min(clientId.length(), 10)), mode);
+                 clientId.substring(0, Math.min(clientId.length(), 10)), getMode());
         return new OAuthTokenCredential(clientId, clientSecret, paypalSdkConfig());
     }
 

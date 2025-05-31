@@ -1,0 +1,17 @@
+# Ignore file chứa thông tin nhạy cảm
+.env
+/src/main/resources/application.properties
+
+# Maven output
+/target/
+
+# IDE files
+.idea/
+/*.iml
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
