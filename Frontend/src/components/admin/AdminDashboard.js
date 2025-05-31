@@ -9,6 +9,7 @@ import {
 import AdminProductList from './AdminProductList';
 import AdminProductForm from './AdminProductForm';
 import AdminCategoryList from './AdminCategoryList';
+import AdminOrdersPage from './AdminOrdersPage';
 import '../../styles/Admin.css';
 
 const AdminDashboard = () => {
@@ -53,6 +54,8 @@ const AdminDashboard = () => {
         return <AdminProductForm />;
       case 'categories':
         return <AdminCategoryList />;
+      case 'orders':
+        return <AdminOrdersPage />;
       case 'dashboard':
       default:
         return (
@@ -292,6 +295,12 @@ const AdminDashboard = () => {
             onClick={() => setActiveSection('categories')}
           >
             <FontAwesomeIcon icon={faLayerGroup} /> Categories
+          </li>
+          <li 
+            className={activeSection === 'orders' ? 'active' : ''}
+            onClick={() => setActiveSection('orders')}
+          >
+            <FontAwesomeIcon icon={faShoppingCart} /> Orders
           </li>
           <li onClick={() => navigate('/')}>
             <FontAwesomeIcon icon={faHome} /> Go to Site

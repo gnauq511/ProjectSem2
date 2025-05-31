@@ -5,6 +5,7 @@ import com.project.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List; // Ensure List is imported
 import java.util.Collections; // For returning empty list
 
@@ -20,12 +21,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        // Return only products that are not deleted (deleted = 0)
+        return productRepository.findAllActive();
     }
 
     @Override
     public Product getProductById(Long id) {
-        return productRepository.findById(id)
+        // Only return product if it's not deleted
+        return productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + id));
     }
 
@@ -65,9 +68,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(Long id) {
-        Product product = getProductById(id); // Ensures product exists before attempting delete
-        productRepository.delete(product);
+        // Check if product exists
+        if (!productRepository.existsById(id)) {
+            throw new EntityNotFoundException("Product not found with id: " + id);
+        }
+        // Soft delete by setting deleted = 1
+        productRepository.softDeleteById(id);
     }
 
     @Override

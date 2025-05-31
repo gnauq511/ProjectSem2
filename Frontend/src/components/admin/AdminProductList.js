@@ -276,9 +276,9 @@ const AdminProductList = () => {
           {showDeleteModal && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h3>Confirm Delete</h3>
-                <p>Are you sure you want to delete the product "{productToDelete?.name}"?</p>
-                <p>This action cannot be undone.</p>
+                <h3>Confirm Hide Product</h3>
+                <p>Are you sure you want to hide the product "{productToDelete?.name}"?</p>
+                <p>The product will be removed from customer view but retained in the database.</p>
                 <div className="modal-actions">
                   <button 
                     className="cancel-btn"
@@ -290,7 +290,7 @@ const AdminProductList = () => {
                     className="delete-btn"
                     onClick={handleDeleteConfirm}
                   >
-                    Delete
+                    Hide Product
                   </button>
                 </div>
               </div>

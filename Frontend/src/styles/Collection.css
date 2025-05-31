@@ -51,12 +51,27 @@
   color: white;
 }
 
-.search-box input {
-  padding: 8px 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  width: 250px;
+/* Main search styles for collection page */
+.collection-search {
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  border-bottom: none;
+}
+
+.collection-search .main-search-form {
+  max-width: 350px;
+  height: 40px;
+}
+
+.collection-search .main-search-input {
+  padding: 0.8rem 1.5rem;
   font-size: 0.9rem;
+}
+
+.collection-search .main-search-button {
+  padding: 0 1.2rem;
+  font-size: 1rem;
 }
 
 .sort-dropdown {

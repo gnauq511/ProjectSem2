@@ -1,0 +1,191 @@
+.admin-orders-page {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.admin-orders-page h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.admin-orders-page .loading,
+.admin-orders-page .error,
+.admin-orders-page .no-orders {
+    text-align: center;
+    font-size: 1.2em;
+    padding: 20px;
+    color: #555;
+    margin: 20px 0;
+}
+
+.admin-orders-page .error {
+    color: #D8000C; /* Red for errors */
+    background-color: #FFD2D2; /* Light red background */
+    border: 1px solid #D8000C;
+    border-radius: 5px;
+}
+
+.admin-orders-page table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    overflow-x: auto;
+}
+
+.admin-orders-page th,
+.admin-orders-page td {
+    border: 1px solid #ddd;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.admin-orders-page th {
+    background-color: #f4f4f4; /* Light grey for header */
+    color: #333;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.admin-orders-page tr:nth-child(even) {
+    background-color: #f9f9f9; /* Zebra striping for rows */
+}
+
+.admin-orders-page tr:hover {
+    background-color: #f1f1f1; /* Highlight on hover */
+}
+
+/* Status styling */
+.admin-orders-page select {
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    min-width: 120px;
+    font-weight: bold;
+}
+
+.admin-orders-page select:hover {
+    border-color: #888;
+}
+
+.admin-orders-page select:focus {
+    outline: none;
+    border-color: #555;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.admin-orders-page .status-pending {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.admin-orders-page .status-processing {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.admin-orders-page .status-shipped {
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+}
+
+.admin-orders-page .status-delivered {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.admin-orders-page .status-cancelled {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+/* Order details styling */
+.admin-orders-page .view-details-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-orders-page .view-details-btn:hover {
+    background-color: #0069d9;
+}
+
+.admin-orders-page tr.expanded {
+    background-color: #e8f4ff;
+}
+
+.admin-orders-page .order-details {
+    background-color: #f8f9fa;
+}
+
+.admin-orders-page .order-details-content {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.admin-orders-page .order-details-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 10px;
+}
+
+.admin-orders-page .items-table {
+    grid-column: 1 / -1;
+    margin-bottom: 20px;
+    box-shadow: none;
+}
+
+.admin-orders-page .order-address,
+.admin-orders-page .order-payment {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+    .admin-orders-page .order-details-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-orders-page {
+        padding: 10px;
+    }
+    
+    .admin-orders-page table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .admin-orders-page th,
+    .admin-orders-page td {
+        padding: 8px 10px;
+    }
+}

@@ -3,6 +3,7 @@ package com.project.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal; // Added for price
+import java.util.UUID;
 
 @Entity
 public class Product {
@@ -40,6 +41,12 @@ public class Product {
     
     @Transient
     private String categoryName;
+    
+    @Column(name = "unique_id", unique = true)
+    private String uniqueId;
+    
+    @Column(name = "deleted", nullable = false, columnDefinition = "int default 0")
+    private Integer deleted = 0;
 
     // Getters and Setters
     public Long getId() {
@@ -128,5 +135,31 @@ public class Product {
     
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+    
+    public String getUniqueId() {
+        return uniqueId;
+    }
+    
+    public void setUniqueId(String uniqueId) {
+        this.uniqueId = uniqueId;
+    }
+    
+    public Integer getDeleted() {
+        return deleted;
+    }
+    
+    public void setDeleted(Integer deleted) {
+        this.deleted = deleted;
+    }
+    
+    @PrePersist
+    public void generateUniqueIdIfNeeded() {
+        if (this.uniqueId == null) {
+            this.uniqueId = UUID.randomUUID().toString();
+        }
+        if (this.deleted == null) {
+            this.deleted = 0;
+        }
     }
 }

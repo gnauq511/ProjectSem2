@@ -27,7 +27,7 @@ public class CartService {
 
     @Autowired
     private ProductRepository productRepository;
-    
+
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -37,7 +37,7 @@ public class CartService {
     @Transactional
     public Cart getOrCreateCart(Customer customer) {
         Optional<Cart> existingCart = cartRepository.findByCustomerId(customer.getId());
-        
+
         if (existingCart.isPresent()) {
             return existingCart.get();
         } else {
@@ -62,24 +62,24 @@ public class CartService {
     public CartItem addItemToCart(Long customerId, Long productId, Integer quantity) {
         try {
             System.out.println("Adding item to cart - Customer ID: " + customerId + ", Product ID: " + productId + ", Quantity: " + quantity);
-            
+
             // Get the customer's cart
             Optional<Cart> optionalCart = cartRepository.findByCustomerId(customerId);
             Cart cart;
-            
+
             if (optionalCart.isPresent()) {
                 cart = optionalCart.get();
                 System.out.println("Found cart with ID: " + cart.getId());
             } else {
                 System.out.println("No cart found for customer ID: " + customerId + ". Creating a new cart.");
-                
+
                 // Find the customer
                 Optional<Customer> customerOpt = customerRepository.findById(customerId);
                 if (!customerOpt.isPresent()) {
                     System.err.println("Customer not found with ID: " + customerId);
                     throw new RuntimeException("Customer not found with ID: " + customerId);
                 }
-                
+
                 // Create a new cart for the customer
                 Customer customer = customerOpt.get();
                 cart = new Cart();
@@ -92,7 +92,7 @@ public class CartService {
             // Get the product
             Optional<Product> optionalProduct = productRepository.findById(productId);
             Product product;
-            
+
             if (optionalProduct.isPresent()) {
                 product = optionalProduct.get();
                 System.out.println("Found product: " + product.getName());
@@ -136,10 +136,10 @@ public class CartService {
     public CartItem updateCartItemQuantity(Long cartItemId, Integer quantity) {
         try {
             System.out.println("Updating cart item quantity: ID=" + cartItemId + ", quantity=" + quantity);
-            
+
             Optional<CartItem> optionalCartItem = cartItemRepository.findById(cartItemId);
             CartItem cartItem;
-            
+
             if (optionalCartItem.isPresent()) {
                 cartItem = optionalCartItem.get();
                 // Force initialization of product to avoid lazy loading issues
@@ -150,7 +150,7 @@ public class CartService {
                 System.err.println("Cart item not found with ID: " + cartItemId);
                 throw new RuntimeException("Cart item not found with ID: " + cartItemId);
             }
-            
+
             if (quantity <= 0) {
                 System.out.println("Deleting cart item due to quantity <= 0");
                 cartItemRepository.delete(cartItem);
@@ -185,20 +185,20 @@ public class CartService {
             System.out.println("Getting cart items for customer ID: " + customerId);
             Optional<Cart> optionalCart = cartRepository.findByCustomerId(customerId);
             Cart cart;
-            
+
             if (optionalCart.isPresent()) {
                 cart = optionalCart.get();
                 System.out.println("Found cart with ID: " + cart.getId());
             } else {
                 System.out.println("No cart found for customer ID: " + customerId + ". Creating a new cart.");
-                
+
                 // Find the customer
                 Optional<Customer> customerOpt = customerRepository.findById(customerId);
                 if (!customerOpt.isPresent()) {
                     System.err.println("Customer not found with ID: " + customerId);
                     return List.of();
                 }
-                
+
                 // Create a new cart for the customer
                 Customer customer = customerOpt.get();
                 cart = new Cart();
@@ -207,7 +207,7 @@ public class CartService {
                 cart = cartRepository.save(cart);
                 System.out.println("Created new cart with ID: " + cart.getId());
             }
-            
+
             List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
             System.out.println("Found " + items.size() + " items in cart");
             return items;

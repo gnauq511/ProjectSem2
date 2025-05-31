@@ -8,14 +8,18 @@ import ProductDetail from './components/pages/ProductDetail';
 import FeedbackForm from './components/pages/FeedbackForm';
 import ContactForm from './components/pages/ContactForm';
 import AboutUs from './components/pages/AboutUs';
+import Search from './components/pages/Search';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import CartPage from './components/pages/CartPage';
+import OrdersPage from './components/pages/OrdersPage';
+import PaymentSuccess from './components/pages/PaymentSuccess';
+import PaymentCancel from './components/pages/PaymentCancel';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
-import ScrollToTop from './services/scrollToTop';
-import CartService from './services/cartService';
+import ScrollToTop from './services/ScrollToTop';
+import CartService from './services/CartService';
 import './styles/App.css';
 import './styles/Admin.css';
 
@@ -197,11 +201,16 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
+            <Route path="/payment/cancel" element={<PaymentCancel />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route element={<AdminProtectedRoute />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/orders" element={<AdminDashboard />} />
             </Route>
           </Routes>
         </main>

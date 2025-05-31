@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { CartContext } from '../../App';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -10,13 +10,20 @@ import {
   faTimes,
   faSignOutAlt 
 } from '@fortawesome/free-solid-svg-icons';
+import { logoutFromPayPal } from '../paypal/PayPalButton';
 import '../../styles/Navbar.css';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showSearchInput, setShowSearchInput] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { cartItems, currentUser, setCurrentUser, setCartItems } = useContext(CartContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if current page is search page
+  const isSearchPage = location.pathname === '/search';
   
   // Close menu when clicking outside
   useEffect(() => {
@@ -27,11 +34,14 @@ const Navbar = () => {
       if (showUserMenu && !e.target.closest('.user-menu') && !e.target.closest('.user-icon')) {
         setShowUserMenu(false);
       }
+      if (showSearchInput && !e.target.closest('.search-form') && !e.target.closest('.search-icon')) {
+        setShowSearchInput(false);
+      }
     };
     
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [menuOpen, showUserMenu]);
+  }, [menuOpen, showUserMenu, showSearchInput]);
 
   // Total items in cart
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -42,6 +52,27 @@ const Navbar = () => {
   
   const toggleUserMenu = () => {
     setShowUserMenu(!showUserMenu);
+  };
+  
+  const toggleSearchInput = () => {
+    setShowSearchInput(!showSearchInput);
+    // Focus the search input when it appears
+    if (!showSearchInput) {
+      setTimeout(() => {
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) searchInput.focus();
+      }, 10);
+    }
+  };
+  
+
+  
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm('');
+    }
   };
   
   // Handle cart icon click - only fetch cart items when needed
@@ -56,6 +87,9 @@ const Navbar = () => {
   const handleLogout = () => {
     // Clear user data from localStorage
     localStorage.removeItem('currentUser');
+    
+    // Log out from PayPal
+    logoutFromPayPal();
     
     // Clear user data from context
     setCurrentUser(null);
@@ -97,11 +131,36 @@ const Navbar = () => {
         </ul>
 
         <ul className="nav-icons flex">
-          <li>
-            <Link to="/search" className="icon">
-              <FontAwesomeIcon icon={faSearch} />
-            </Link>
-          </li>
+          {!isSearchPage && (
+            <li className="search-icon-container">
+              <div className="icon search-icon" onClick={toggleSearchInput}>
+                <FontAwesomeIcon icon={faSearch} />
+              </div>
+              {showSearchInput && (
+                <div className="search-popup">
+                  <form onSubmit={handleSearchSubmit} className="search-form">
+                    <input
+                      type="text"
+                      placeholder="Search products..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="search-input"
+                    />
+                    <button type="submit" className="search-button">
+                      <FontAwesomeIcon icon={faSearch} />
+                    </button>
+                    <button 
+                      type="button" 
+                      className="close-search-button"
+                      onClick={toggleSearchInput}
+                    >
+                      <FontAwesomeIcon icon={faTimes} />
+                    </button>
+                  </form>
+                </div>
+              )}
+            </li>
+          )}
           <li className="user-icon-container">
             <div className="icon user-icon" onClick={toggleUserMenu}>
               <FontAwesomeIcon icon={faUser} />
@@ -115,6 +174,9 @@ const Navbar = () => {
                     </div>
                     <Link to="/profile" className="user-menu-item">
                       <FontAwesomeIcon icon={faUser} /> Profile
+                    </Link>
+                    <Link to="/orders" className="user-menu-item">
+                      <FontAwesomeIcon icon={faShoppingBag} /> My Orders
                     </Link>
                     <div className="user-menu-item" onClick={handleLogout}>
                       <FontAwesomeIcon icon={faSignOutAlt} /> Logout

@@ -3,7 +3,7 @@ import api from '../../services/api';
 import ProductItem from '../common/ProductItem';
 import { CartContext } from '../../App';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faTimes, faSort } from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faTimes, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/Collection.css';
 
 const Collection = () => {
@@ -122,13 +122,19 @@ const Collection = () => {
             {showFilters ? ' Hide Filters' : ' Show Filters'}
           </button>
           
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="main-search-container collection-search">
+            <form onSubmit={(e) => e.preventDefault()} className="main-search-form">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="main-search-input"
+              />
+              <button type="submit" className="main-search-button">
+                <FontAwesomeIcon icon={faSearch} />
+              </button>
+            </form>
           </div>
           
           <div className="sort-dropdown">
