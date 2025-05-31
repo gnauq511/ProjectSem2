@@ -3,10 +3,8 @@ package com.project.config;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.OAuthTokenCredential;
 import com.paypal.base.rest.PayPalRESTException;
-import io.github.cdimascio.dotenv.Dotenv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,45 +15,78 @@ import java.util.Map;
 @Configuration
 public class PayPalConfig {
     private static final Logger logger = LoggerFactory.getLogger(PayPalConfig.class);
-    
-    @Autowired
-    private Dotenv dotenv;
 
-    // Use environment variables or fallback to properties
+    // Default mode if environment variable is not set
+    private static final String DEFAULT_MODE = "sandbox";
+    
+    // Properties from application.properties with fallback values
     @Value("${paypal.client.id:}")
     private String clientIdFromProps;
-
+    
     @Value("${paypal.client.secret:}")
     private String clientSecretFromProps;
-
+    
     @Value("${paypal.mode:sandbox}")
     private String modeFromProps;
 
-    // Get client ID from environment variable or fallback to properties
+    // Get client ID from environment variable or application.properties
     private String getClientId() {
-        String envClientId = dotenv.get("PAYPAL_CLIENT_ID");
+        // Try environment variable first
+        String envClientId = System.getenv("PAYPAL_CLIENT_ID");
         if (envClientId != null && !envClientId.isEmpty()) {
+            logger.info("Using PayPal Client ID from environment variable");
             return envClientId;
         }
-        return clientIdFromProps;
+        
+        // Then try application.properties
+        if (clientIdFromProps != null && !clientIdFromProps.isEmpty()) {
+            logger.info("Using PayPal Client ID from application.properties");
+            return clientIdFromProps;
+        }
+        
+        // Use default sandbox credentials for development
+        logger.warn("No PayPal Client ID found in environment or properties, using sandbox default");
+        return "AZBCjv9QIyemM7GGPfoMPTepMfpkPFcdIgp-mEyKj-LOvBNNRs1z_Q3wTiTDvMKqc4RfZEDGtWcWJ8Pt";
     }
     
-    // Get client secret from environment variable or fallback to properties
+    // Get client secret from environment variable or application.properties
     private String getClientSecret() {
-        String envClientSecret = dotenv.get("PAYPAL_CLIENT_SECRET");
+        // Try environment variable first
+        String envClientSecret = System.getenv("PAYPAL_CLIENT_SECRET");
         if (envClientSecret != null && !envClientSecret.isEmpty()) {
+            logger.info("Using PayPal Client Secret from environment variable");
             return envClientSecret;
         }
-        return clientSecretFromProps;
+        
+        // Then try application.properties
+        if (clientSecretFromProps != null && !clientSecretFromProps.isEmpty()) {
+            logger.info("Using PayPal Client Secret from application.properties");
+            return clientSecretFromProps;
+        }
+        
+        // Use default sandbox credentials for development
+        logger.warn("No PayPal Client Secret found in environment or properties, using sandbox default");
+        return "EJAkYiGv9zKUBVUHMQIbhvPVzcWRFSvv-lzOafnI8_AgHhbQ1VKjWK7HaMZhAyuqZ2pU_NVEot6QNjSL";
     }
     
-    // Get mode from environment variable or fallback to properties
+    // Get mode from environment variable, application.properties, or fallback to default
     private String getMode() {
-        String envMode = dotenv.get("PAYPAL_MODE");
+        // Try environment variable first
+        String envMode = System.getenv("PAYPAL_MODE");
         if (envMode != null && !envMode.isEmpty()) {
+            logger.info("Using PayPal mode from environment variable: {}", envMode);
             return envMode;
         }
-        return modeFromProps;
+        
+        // Then try application.properties
+        if (modeFromProps != null && !modeFromProps.isEmpty()) {
+            logger.info("Using PayPal mode from application.properties: {}", modeFromProps);
+            return modeFromProps;
+        }
+        
+        // Use default mode
+        logger.info("No PayPal mode found in environment or properties, using default: {}", DEFAULT_MODE);
+        return DEFAULT_MODE;
     }
 
     @Bean
