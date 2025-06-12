@@ -1,180 +1,213 @@
 package com.project.service;
 
-import com.project.model.Customer;
-import com.project.model.Order;
-import com.project.model.OrderItem;
-import com.project.model.Product;
-import com.project.repository.CustomerRepository;
-import com.project.repository.OrderRepository;
-import com.project.repository.ProductRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.project.model.*;
+import com.project.model.dto.CartItemDTO;
+import com.project.model.dto.OrderRequest;
+import com.project.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderRepository orderRepository;
-    private final CustomerRepository customerRepository;
-    private final ProductRepository productRepository;
-    private final com.project.repository.PaymentRepository paymentRepository; // Added PaymentRepository
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository,
-                            CustomerRepository customerRepository,
-                            ProductRepository productRepository,
-                            com.project.repository.PaymentRepository paymentRepository) { // Added PaymentRepository
-        this.orderRepository = orderRepository;
-        this.customerRepository = customerRepository;
-        this.productRepository = productRepository;
-        this.paymentRepository = paymentRepository; // Added PaymentRepository
-    }
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private CartRepository cartRepository;
 
     @Override
     @Transactional
-    public Order createOrder(Order order) {
-        // 1. Validate Customer
-        Customer customer = customerRepository.findById(order.getCustomer().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + order.getCustomer().getId()));
-        order.setCustomer(customer);
+    public Order createOrder(OrderRequest orderRequest) {
+        Customer customer = customerRepository.findById(orderRequest.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + orderRequest.getCustomerId()));
 
-        // 2. Set Order Date
-        order.setOrderDate(LocalDateTime.now());
+        Address address = addressRepository.findById(orderRequest.getAddressId())
+                .orElseThrow(() -> new RuntimeException("Address not found with ID: " + orderRequest.getAddressId()));
 
-        // 3. Process OrderItems: Validate products, update stock, calculate total
-        double totalAmount = 0.0;
-        if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
-            for (OrderItem item : order.getOrderItems()) {
-                Product product = productRepository.findById(item.getProduct().getId())
-                        .orElseThrow(() -> new EntityNotFoundException("Product not found with id: " + item.getProduct().getId()));
-
-                if (product.getStockQuantity() < item.getQuantity()) {
-                    throw new IllegalArgumentException("Not enough stock for product: " + product.getName());
-                }
-
-                // Update product stock
-                product.setStockQuantity(product.getStockQuantity() - item.getQuantity());
-                productRepository.save(product);
-
-                item.setProduct(product); // Ensure managed product entity is set
-                item.setPrice(product.getPrice()); // Set price at the time of order
-                item.setOrder(order); // Set bidirectional relationship
-                totalAmount += item.getQuantity() * item.getPrice().doubleValue();
+        // 1. Validate stock for all items before making any changes
+        for (CartItemDTO itemDTO : orderRequest.getCartItems()) {
+            Product product = productRepository.findById(itemDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + itemDTO.getId()));
+            
+            int availableStock = getStockForSize(product, itemDTO.getSize());
+            if (availableStock < itemDTO.getQuantity()) {
+                throw new RuntimeException("Insufficient stock for product " + product.getName() + " (Size: " + itemDTO.getSize() + ")");
             }
+        }
+
+        // 2. Create Order and OrderItems
+        Order order = new Order();
+        order.setCustomer(customer);
+        order.setAddress(address);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus("PENDING");
+        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        for (CartItemDTO itemDTO : orderRequest.getCartItems()) {
+            Product product = productRepository.findById(itemDTO.getId()).get(); // Already checked, so .get() is safe
+            
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(product);
+            orderItem.setQuantity(itemDTO.getQuantity());
+            orderItem.setPrice(product.getPrice());
+            orderItem.setSize(itemDTO.getSize());
+            orderItem.setOrder(order);
+            orderItems.add(orderItem);
+
+            totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(itemDTO.getQuantity())));
+        }
+
+        order.setOrderItems(orderItems);
+        order.setTotalAmount(totalAmount);
+
+        // Create and associate the Payment record
+        Payment payment = new Payment();
+        payment.setOrder(order);
+        payment.setAmount(totalAmount);
+        payment.setPaymentDate(LocalDateTime.now());
+
+        String paymentMethod = orderRequest.getPaymentMethod();
+        payment.setPaymentMethod(paymentMethod);
+
+        // Set status based on payment method
+        if ("PAYPAL".equalsIgnoreCase(paymentMethod)) {
+            payment.setStatus("COMPLETED");
+            order.setPaymentStatus("COMPLETED");
         } else {
-            throw new IllegalArgumentException("Order must contain at least one item.");
+            payment.setStatus("PENDING");
+            order.setPaymentStatus("PENDING");
         }
 
-        order.setTotalAmount(BigDecimal.valueOf(totalAmount));
-        // Set default status if not provided
-        if (order.getStatus() == null) {
-            order.setStatus("PENDING"); // Or some default status
+        // Set transaction ID from request or generate a new one for COD
+        String transactionId = orderRequest.getTransactionId();
+        if (transactionId == null || transactionId.isEmpty()) {
+            transactionId = "COD-" + UUID.randomUUID().toString();
         }
+        payment.setTransactionId(transactionId);
 
-        return orderRepository.save(order);
+        // For consistency, also set these on the order itself
+        order.setTransactionId(transactionId);
+        order.setPaymentMethod(paymentMethod);
+
+        // Add the payment to the order's list of payments
+        order.getPayments().add(payment);
+
+        Order savedOrder = orderRepository.save(order);
+
+        // 4. Clear the customer's cart
+        cartRepository.findByCustomerId(customer.getId()).ifPresent(cart -> {
+            cartRepository.delete(cart);
+        });
+
+        return savedOrder;
     }
 
     @Override
     public Order getOrderById(Long id) {
         return orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + id));
     }
 
     @Override
     public List<Order> getOrdersByCustomerId(Long customerId) {
-        // Ensure customer exists if you want to throw an error, or just return empty list
-        customerRepository.findById(customerId)
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + customerId));
         return orderRepository.findByCustomerId(customerId);
     }
 
     @Override
-    @Transactional
     public List<Order> getAllOrders() {
-        List<Order> orders = orderRepository.findAll();
-        
-        // Force initialization of lazy-loaded collections
-        for (Order order : orders) {
-            // Access the collections to initialize them
-            if (order.getCustomer() != null) {
-                order.getCustomer().getFirstName(); // Access to initialize
-            }
-            if (order.getShippingAddress() != null) {
-                order.getShippingAddress().getStreet(); // Access to initialize
-            }
-            if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
-                order.getOrderItems().size(); // Access to initialize
-                // Initialize each product in order items
-                for (OrderItem item : order.getOrderItems()) {
-                    if (item.getProduct() != null) {
-                        item.getProduct().getName(); // Access to initialize
-                    }
-                }
-            }
-            if (order.getPayments() != null && !order.getPayments().isEmpty()) {
-                order.getPayments().size(); // Access to initialize
-            }
-        }
-        
-        return orders;
+        return orderRepository.findAll();
     }
 
     @Override
     @Transactional
     public Order updateOrderStatus(Long orderId, String status) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + orderId));
+        Order order = getOrderById(orderId);
 
-        // Validate status (you might want to use an enum or constants instead)
-        if (status == null || status.trim().isEmpty()) {
-            throw new IllegalArgumentException("Status cannot be empty");
+        // Update stock only when status changes to "SHIPPED" to prevent double-deduction
+        if ("SHIPPED".equalsIgnoreCase(status) && !"SHIPPED".equalsIgnoreCase(order.getStatus())) {
+            for (OrderItem item : order.getOrderItems()) {
+                Product product = item.getProduct();
+                int quantity = item.getQuantity();
+                String size = item.getSize();
+
+                // Check for sufficient stock before decrementing
+                int availableStock = getStockForSize(product, size);
+                if (availableStock < quantity) {
+                    throw new RuntimeException("Insufficient stock for product " + product.getName() + " (Size: " + size + "). Cannot ship order.");
+                }
+
+                updateStock(product, size, -quantity);
+            }
         }
 
-        // List of valid statuses - could be moved to an enum in a real application
-        List<String> validStatuses = List.of("PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED");
-        if (!validStatuses.contains(status.toUpperCase())) {
-            throw new IllegalArgumentException("Invalid status: " + status + ". Valid statuses are: " + validStatuses);
-        }
-
-        order.setStatus(status.toUpperCase());
+        order.setStatus(status);
         return orderRepository.save(order);
     }
 
     @Override
-    @Transactional(readOnly = true) // Good practice for read operations
-    public Order getOrderByPaymentId(String paymentId) {
-        if (paymentId == null || paymentId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Payment ID cannot be null or empty.");
+    public Optional<Order> getOrderByTransactionId(String transactionId) {
+        return orderRepository.findByTransactionId(transactionId);
+    }
+
+    // Helper methods for size-based stock management
+
+    private int getStockForSize(Product product, String size) {
+        StockQuantity stock = product.getStockQuantity();
+        if (stock == null) return 0;
+
+        switch (size.toUpperCase()) {
+            case "S": return stock.getSQuantity();
+            case "M": return stock.getMQuantity();
+            case "L": return stock.getLQuantity();
+            case "XL": return stock.getXlQuantity();
+            case "XXL": return stock.getXxlQuantity();
+            default: throw new IllegalArgumentException("Invalid size: " + size);
         }
-        com.project.model.Payment payment = paymentRepository.findByTransactionId(paymentId)
-                .orElseThrow(() -> new EntityNotFoundException("Payment not found with transaction ID: " + paymentId));
-        
-        Order order = payment.getOrder();
-        if (order == null) {
-            // This case should ideally not happen if data integrity is maintained
-            throw new EntityNotFoundException("Order not found for payment with transaction ID: " + paymentId);
+    }
+
+    private void updateStock(Product product, String size, int quantityChange) {
+        StockQuantity stock = product.getStockQuantity();
+        if (stock == null) {
+            throw new IllegalStateException("Product has no stock information.");
         }
-        // Initialize lazy-loaded collections if needed, similar to getAllOrders()
-        if (order.getCustomer() != null) {
-            order.getCustomer().getFirstName(); 
+
+        switch (size.toUpperCase()) {
+            case "S":
+                stock.setSQuantity(stock.getSQuantity() + quantityChange);
+                break;
+            case "M":
+                stock.setMQuantity(stock.getMQuantity() + quantityChange);
+                break;
+            case "L":
+                stock.setLQuantity(stock.getLQuantity() + quantityChange);
+                break;
+            case "XL":
+                stock.setXlQuantity(stock.getXlQuantity() + quantityChange);
+                break;
+            case "XXL":
+                stock.setXxlQuantity(stock.getXxlQuantity() + quantityChange);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid size: " + size);
         }
-        if (order.getShippingAddress() != null) {
-            order.getShippingAddress().getStreet(); 
-        }
-        if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
-            order.getOrderItems().size(); 
-            for (OrderItem item : order.getOrderItems()) {
-                if (item.getProduct() != null) {
-                    item.getProduct().getName(); 
-                }
-            }
-        }
-        // No need to initialize order.getPayments() here as we came from a payment
-        return order;
     }
 }

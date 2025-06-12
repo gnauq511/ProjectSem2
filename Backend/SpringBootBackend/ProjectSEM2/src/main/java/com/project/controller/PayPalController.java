@@ -4,10 +4,13 @@ import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import com.project.model.*;
+import com.project.model.dto.CartItemDTO;
+import com.project.model.dto.OrderRequest;
 import com.project.service.CartService;
 import com.project.service.CustomerService;
 import com.project.service.OrderService;
 import com.project.service.PayPalService;
+import com.project.service.EmailService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,8 +18,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/paypal")
@@ -35,50 +41,35 @@ public class PayPalController {
     @Autowired
     private CartService cartService;
 
-    public static final String SUCCESS_URL = "http://localhost:3000/payment/success";
+    @Autowired
+    private EmailService emailService;
+
+    public static final String SUCCESS_URL = "http://localhost:3000/payment-success?method=paypal";
     public static final String CANCEL_URL = "http://localhost:3000/payment/cancel";
     
-    // Debug log for PayPal callbacks
-    private void logPayPalParameters(String method, Object... params) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[PayPalController] ").append(method).append(" called with parameters: ");
-        for (Object param : params) {
-            sb.append(param).append(", ");
-        }
-        System.out.println(sb.toString());
-    }
 
     @PostMapping("/create")
     public ResponseEntity<?> createPayment(
             @RequestParam("customerId") Long customerId,
             @RequestParam("addressId") Long addressId) {
         try {
-            // Find the customer
             Customer customer = customerService.getCustomerById(customerId);
             if (customer == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("Customer not found with ID: " + customerId);
             }
-            
-            // Get cart items
             List<CartItem> cartItems = cartService.getCartItems(customerId);
             if (cartItems.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("Cart is empty");
             }
-            
-            // Calculate total amount
             BigDecimal total = BigDecimal.ZERO;
             for (CartItem item : cartItems) {
                 BigDecimal itemPrice = item.getProduct().getPrice();
                 BigDecimal itemTotal = itemPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
                 total = total.add(itemTotal);
             }
-            
-            // Create temporary order in session or database
-            // For this example, we'll just store the order ID in the success URL
-            
-            // Create PayPal payment
+
             Payment payment = paypalService.createPayment(
                     total, 
                     "USD", 
@@ -87,11 +78,10 @@ public class PayPalController {
                     "Payment for order",
                     CANCEL_URL + "?customerId=" + customerId,
                     // Include paymentId in success URL for easier tracking
-                    SUCCESS_URL + "?customerId=" + customerId + "&addressId=" + addressId
+                    SUCCESS_URL + "&customerId=" + customerId + "&addressId=" + addressId
             );
             
             System.out.println("[PayPalController] Created payment with ID: " + payment.getId());
-            
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
                     Map<String, String> response = new HashMap<>();
@@ -100,7 +90,6 @@ public class PayPalController {
                     return ResponseEntity.ok(response);
                 }
             }
-            
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to create PayPal payment");
             
@@ -131,73 +120,91 @@ public class PayPalController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("PayerID is required to complete the payment");
             }
-            
+
             // Execute PayPal payment
             System.out.println("[PayPalController] Executing payment with ID: " + paymentId + " and PayerID: " + payerId);
             Payment payment = paypalService.executePayment(paymentId, payerId);
-            
+
             if (payment.getState().equals("approved")) {
+                // Idempotency Check: Check if an order with this transaction ID already exists
+                Optional<Order> existingOrderOpt = orderService.getOrderByTransactionId(payment.getId());
+                if (existingOrderOpt.isPresent()) {
+                    System.out.println("[PayPalController] Order with transaction ID " + payment.getId() + " already exists. Returning existing order.");
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("message", "Payment already processed");
+                    response.put("order", existingOrderOpt.get());
+                    return ResponseEntity.ok(response);
+                }
+
                 // Find the customer
                 Customer customer = customerService.getCustomerById(customerId);
                 if (customer == null) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND)
                             .body("Customer not found with ID: " + customerId);
                 }
-                
+
                 // Get cart items
                 List<CartItem> cartItems = cartService.getCartItems(customerId);
                 if (cartItems.isEmpty()) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body("Cart is empty");
                 }
-                
-                // Create order
-                Order newOrder = new Order();
-                newOrder.setCustomer(customer);
-                
-                // Find shipping address
-                Optional<Address> addressOpt = customer.getAddresses().stream()
-                        .filter(addr -> addr.getId().equals(addressId))
-                        .findFirst();
-                
-                if (addressOpt.isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Address not found with ID: " + addressId);
+
+                // Create OrderRequest DTO
+                OrderRequest orderRequest = new OrderRequest();
+                orderRequest.setCustomerId(customerId);
+                orderRequest.setAddressId(addressId);
+                orderRequest.setPaymentMethod("PAYPAL");
+                orderRequest.setTransactionId(payment.getId());
+
+                List<CartItemDTO> cartItemDTOs = cartItems.stream()
+                        .map(cartItem -> {
+                            CartItemDTO dto = new CartItemDTO();
+                            dto.setId(cartItem.getProduct().getId());
+                            dto.setQuantity(cartItem.getQuantity());
+                            dto.setPrice(cartItem.getProduct().getPrice());
+                            dto.setSize(cartItem.getSize());
+                            return dto;
+                        })
+                        .collect(Collectors.toList());
+                orderRequest.setCartItems(cartItemDTOs);
+
+                // Create the order using the service
+                Order createdOrder = orderService.createOrder(orderRequest);
+
+                // Build HTML email content
+                StringBuilder emailBody = new StringBuilder();
+                emailBody.append("Dear ").append(customer.getFirstName()).append(",<br/><br/>");
+                emailBody.append("Your payment for order #").append(createdOrder.getId()).append(" was successful! Your order will be processed shortly.<br/><br/>");
+
+                // Add order items table
+                emailBody.append("<table border='1' cellpadding='5' cellspacing='0'>");
+                emailBody.append("<thead><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Subtotal</th></tr></thead>");
+                emailBody.append("<tbody>");
+                for (OrderItem item : createdOrder.getOrderItems()) {
+                    BigDecimal itemSubtotal = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                    emailBody.append("<tr>");
+                    emailBody.append("<td>").append(item.getProduct().getName()).append("</td>");
+                    emailBody.append("<td>$").append(String.format("%.2f", item.getPrice())).append("</td>");
+                    emailBody.append("<td>").append(item.getQuantity()).append("</td>");
+                    emailBody.append("<td>$").append(String.format("%.2f", itemSubtotal)).append("</td>");
+                    emailBody.append("</tr>");
                 }
-                
-                newOrder.setShippingAddress(addressOpt.get());
-                
-                // Create order items
-                List<OrderItem> orderItems = new ArrayList<>();
-                for (CartItem cartItem : cartItems) {
-                    OrderItem orderItem = new OrderItem();
-                    orderItem.setProduct(cartItem.getProduct());
-                    orderItem.setQuantity(cartItem.getQuantity());
-                    orderItem.setOrder(newOrder);
-                    orderItems.add(orderItem);
-                }
-                newOrder.setOrderItems(orderItems);
-                
-                // Create order
-                Order createdOrder = orderService.createOrder(newOrder);
-                
-                // Create payment record
-                com.project.model.Payment orderPayment = new com.project.model.Payment();
-                orderPayment.setOrder(createdOrder);
-                orderPayment.setAmount(createdOrder.getTotalAmount());
-                orderPayment.setPaymentMethod("PAYPAL");
-                orderPayment.setStatus("COMPLETED");
-                orderPayment.setPaymentDate(LocalDateTime.now());
-                orderPayment.setTransactionId(payment.getId()); // Use PayPal payment ID
-                
-                // Add payment to order
-                List<com.project.model.Payment> payments = new ArrayList<>();
-                payments.add(orderPayment);
-                createdOrder.setPayments(payments);
-                
-                // Clear cart
-                cartService.clearCart(customerId);
-                
+                emailBody.append("</tbody>");
+                emailBody.append("</table><br/>");
+
+                emailBody.append("Total Amount: <b>$").append(String.format("%.2f", createdOrder.getTotalAmount())).append("</b><br/><br/>");
+                emailBody.append("Thank you for your purchase!<br/><br/>");
+                emailBody.append("Best regards,<br/>");
+                emailBody.append("The E-commerce Team");
+
+                // Send email notification with HTML content
+                emailService.sendHtmlEmail(
+                    customer.getUser().getEmail(),
+                    "Payment Successful - Order #" + createdOrder.getId(),
+                    emailBody.toString()
+                );
+
                 // Return success response
                 Map<String, Object> response = new HashMap<>();
                 response.put("message", "Payment completed successfully");

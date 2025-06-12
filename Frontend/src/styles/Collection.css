@@ -1,5 +1,6 @@
 .collection-page {
   padding: 40px 0;
+  min-height: calc(100vh - var(--header-height) - var(--footer-height)); /* Ensure it takes full height */
 }
 
 .collection-header {
@@ -18,139 +19,195 @@
   margin: 0 auto;
 }
 
-.collection-filters {
-  margin-bottom: 30px;
+.collection-main-content {
+  display: flex;
+  gap: 30px; /* Space between sidebar and products area */
+  align-items: flex-start; /* Align content to the top */
+}
+
+/* Sidebar Category Filters */
+.sidebar-category-filters {
+  flex: 0 0 250px; /* Fixed width sidebar */
   background-color: #f9f9f9;
   padding: 20px;
   border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.filter-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
+.sidebar-header {
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
 }
 
-.filter-toggle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 15px;
-  background-color: transparent;
-  border: 1px solid #8b5a2b;
-  color: #8b5a2b;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+.sidebar-header .h4-heading {
+  margin: 0; /* Override default heading margin */
+  color: #333;
+  font-size: 1.1rem;
 }
 
-.filter-toggle:hover {
-  background-color: #8b5a2b;
-  color: white;
+.sidebar-header svg {
+  color: #8b5a2b; /* Brown color for icon */
+  font-size: 1.2rem;
 }
 
-/* Main search styles for collection page */
-.collection-search {
-  margin: 0;
+.category-list {
+  list-style: none;
   padding: 0;
-  background-color: transparent;
-  border-bottom: none;
+  margin: 0;
 }
 
-.collection-search .main-search-form {
-  max-width: 350px;
-  height: 40px;
-}
-
-.collection-search .main-search-input {
-  padding: 0.8rem 1.5rem;
-  font-size: 0.9rem;
-}
-
-.collection-search .main-search-button {
-  padding: 0 1.2rem;
-  font-size: 1rem;
-}
-
-.sort-dropdown {
-  display: flex;
-  align-items: center;
-}
-
-.sort-dropdown label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #555;
-}
-
-.sort-dropdown select {
-  padding: 8px 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
+.category-list-item {
+  padding: 10px 15px;
   cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s, color 0.2s;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  position: relative; /* For the arrow */
 }
 
-.category-filters {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #ddd;
-}
-
-.category-filters h4 {
-  margin-bottom: 15px;
+.category-list-item:hover {
+  background-color: #eee;
   color: #333;
 }
 
-.category-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+.category-list-item.active {
+  background-color: #f0f0f0; /* Slightly different background for active */
+  color: #8b5a2b; /* Brown color for active text */
+  font-weight: bold;
 }
 
-.category-btn {
-  padding: 8px 15px;
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-}
-
-.category-btn:hover {
-  border-color: #8b5a2b;
+.category-list-item.active::before {
+  content: '>'; /* Right arrow */
+  position: absolute;
+  left: 5px; /* Adjust as needed */
   color: #8b5a2b;
+  font-weight: bold;
 }
 
-.category-btn.active {
-  background-color: #8b5a2b;
-  color: white;
-  border-color: #8b5a2b;
+.category-list-item.special-category {
+  font-style: italic; /* Example for special categories */
 }
 
-.products-count {
+/* Utility classes for consistent spacing */
+.gap-15 {
+  gap: 15px;
+}
+
+/* Products and Sorting Area */
+.products-content-area {
+  flex: 1; /* Takes remaining space */
+}
+
+.sort-controls {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 15px;
   margin-bottom: 20px;
-  color: #666;
+  align-items: center;
+  background-color: #f9f9f9; /* Same as sidebar background */
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  justify-content: space-between; /* Distribute items: sort buttons group on left, products count on right */
 }
 
-.clear-filters {
-  background: none;
-  border: none;
-  color: #8b5a2b;
+/* Group for sort buttons and label */
+.sort-options-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* Allow wrapping of sort buttons */
+}
+
+.sort-label {
+  color: #555;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.sort-btn {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 15px;
+  border-radius: 4px;
   cursor: pointer;
-  text-decoration: underline;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  color: #555;
 }
 
+.sort-btn:hover {
+  border-color: #8b5a2b;
+  color: #8b5a2b;
+}
+
+.sort-btn.active {
+  background-color: #ff7f50; /* Orange color from image */
+  color: white;
+  border-color: #ff7f50;
+}
+
+/* Price Sort Dropdown */
+.sort-price-dropdown-container {
+  position: relative;
+  display: inline-block; /* Keep the button and dropdown in line */
+}
+
+.price-dropdown-content {
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1; /* Ensure it appears above other content */
+  border-radius: 4px;
+  overflow: hidden; /* For rounded corners on buttons inside */
+  margin-top: 5px; /* Space below the button */
+}
+
+.price-dropdown-content .dropdown-item {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  background-color: #f9f9f9; /* Match container */
+  border: none; /* Remove button borders */
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.price-dropdown-content .dropdown-item:hover {
+  background-color: #eee;
+}
+
+.price-dropdown-content .dropdown-item.active {
+  background-color: #ff7f50; /* Active color */
+  color: white;
+}
+
+/* Products count adjustments within sort-controls */
+.products-count {
+  margin-bottom: 0; /* Remove previous margin-bottom */
+  margin-left: auto; /* Push to the right */
+  flex-shrink: 0; /* Prevent shrinking */
+  text-align: right; /* Align text to the right within its own div */
+  white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.products-count .clear-filters {
+  display: block; /* Make clear filters button take its own line */
+  margin-top: 5px; /* Space between count and clear filters */
+  margin-left: auto; /* Align to the right if `products-count` is flex */
+}
+
+/* General adjustments for product grid */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 30px;
+  margin-top: 20px; /* Add some top margin to separate from sort controls */
 }
 
 .loading, .error, .no-products {
@@ -172,18 +229,98 @@
   padding: 8px 20px;
 }
 
+/* Remove old display:none rules if they were applied to these elements */
+.collection-filters,
+.filter-controls,
+.main-search-container,
+.collection-search,
+.sort-dropdown,
+.category-filters,
+.category-buttons,
+.filter-toggle,
+.category-btn {
+  display: none; /* Keep these hidden if they are indeed the old elements */
+}
+
+@media (max-width: 992px) {
+  .collection-main-content {
+    flex-direction: column; /* Stack sidebar and products on smaller screens */
+  }
+  .sidebar-category-filters {
+    flex: none; /* Remove fixed width */
+    width: 100%; /* Take full width */
+    margin-bottom: 20px; /* Add space when stacked */
+  }
+  .sort-controls {
+    justify-content: space-between; /* Keep space-between */
+  }
+  .sort-options-group {
+    flex-direction: column; /* Stack sort options on small screens */
+    align-items: flex-start; /* Align to the left */
+    width: 100%; /* Take full width */
+    gap: 10px; /* Adjust gap for stacked items */
+  }
+  .sort-label {
+    margin-right: 0; /* Remove right margin */
+    margin-bottom: 5px; /* Add bottom margin for spacing */
+  }
+  .sort-btn, .sort-price-dropdown-container {
+    width: 100%; /* Make buttons full width */
+  }
+  .products-count {
+    margin-left: 0; /* Reset margin on smaller screens */
+    width: 100%; /* Take full width */
+    text-align: left; /* Align to left */
+    order: -1; /* Place at the top of the flex container */
+    margin-bottom: 10px; /* Add some space below it when stacked */
+  }
+}
+
 @media (max-width: 768px) {
-  .filter-controls {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .search-box input {
-    width: 100%;
-  }
-  
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
   }
 }
+
+/* Pagination Styles */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+.pagination-btn {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  color: #333;
+  cursor: pointer;
+  font-size: 1rem;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.pagination-btn.active {
+  background-color: #ff7f50; /* Coral/Orange color */
+  color: white;
+  border-color: #ff7f50;
+  font-weight: bold;
+}
+
+.pagination-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+

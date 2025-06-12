@@ -59,7 +59,7 @@ public class CartService {
      * Add a product to the customer's cart
      */
     @Transactional
-    public CartItem addItemToCart(Long customerId, Long productId, Integer quantity) {
+    public CartItem addItemToCart(Long customerId, Long productId, Integer quantity, String size) {
         try {
             System.out.println("Adding item to cart - Customer ID: " + customerId + ", Product ID: " + productId + ", Quantity: " + quantity);
 
@@ -101,8 +101,8 @@ public class CartService {
                 throw new RuntimeException("Product not found with ID: " + productId);
             }
 
-            // Check if the product is already in the cart
-            Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
+            // Check if an item with the same product and size is already in the cart
+            Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndProductIdAndSize(cart.getId(), productId, size);
 
             if (existingItem.isPresent()) {
                 // Update quantity if the product is already in the cart
@@ -118,6 +118,7 @@ public class CartService {
                 newItem.setCart(cart);
                 newItem.setProduct(product);
                 newItem.setQuantity(quantity);
+                newItem.setSize(size);
                 CartItem savedItem = cartItemRepository.save(newItem);
                 System.out.println("Successfully added item to cart with ID: " + savedItem.getId());
                 return savedItem;

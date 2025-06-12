@@ -210,6 +210,7 @@ const AdminOrdersPage = () => {
                                 <th>Product</th>
                                 <th>Price</th>
                                 <th>Quantity</th>
+                                <th>Size</th>
                                 <th>Subtotal</th>
                               </tr>
                             </thead>
@@ -219,6 +220,7 @@ const AdminOrdersPage = () => {
                                   <td>{item.product?.name || 'Unknown Product'}</td>
                                   <td>{formatPrice(item.price || 0)}</td>
                                   <td>{item.quantity || 0}</td>
+                                  <td>{item.size || 'N/A'}</td>
                                   <td>
                                     {formatPrice((item.price || 0) * (item.quantity || 0))}
                                   </td>
@@ -232,15 +234,15 @@ const AdminOrdersPage = () => {
                         
                         <div className="order-address">
                           <h3>Shipping Address</h3>
-                          {order.shippingAddress ? (
+                          {order.address ? (
                             <p>
-                              {order.shippingAddress.street || 'No street information'}<br />
+                              {order.address.street || 'No street information'}<br />
                               {[
-                                order.shippingAddress.city, 
-                                order.shippingAddress.state, 
-                                order.shippingAddress.zipCode
+                                order.address.city, 
+                                order.address.state, 
+                                order.address.zipCode
                               ].filter(Boolean).join(', ') || 'No city/state information'}<br />
-                              {order.shippingAddress.country || 'No country information'}
+                              {order.address.country || 'No country information'}
                             </p>
                           ) : (
                             <p>No address information available</p>

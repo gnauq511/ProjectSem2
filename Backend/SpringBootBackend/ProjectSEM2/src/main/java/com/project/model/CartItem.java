@@ -21,7 +21,9 @@ public class CartItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    private Integer quantity;
+    private int quantity;
+
+    private String size;
 
     // Getters and Setters
     public Long getId() {
@@ -48,11 +50,19 @@ public class CartItem {
         this.product = product;
     }
 
-    public Integer getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
 }

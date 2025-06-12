@@ -1,7 +1,7 @@
 package com.project.controller;
 
 import com.project.model.CartItem;
-import com.project.model.Customer;
+
 import com.project.service.CartService;
 import com.project.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,13 +50,14 @@ public class CartController {
     public ResponseEntity<?> addToCart(
             @PathVariable Long customerId,
             @RequestParam Long productId,
-            @RequestParam(defaultValue = "1") Integer quantity) {
-        
+            @RequestParam(defaultValue = "1") Integer quantity,
+            @RequestParam(required = false) String size) {
+
         try {
-            System.out.println("CartController: Adding item to cart - Customer ID: " + customerId + ", Product ID: " + productId);
-            
+            System.out.println("CartController: Adding item to cart - Customer ID: " + customerId + ", Product ID: " + productId + ", Size: " + size);
+
             // Add item to cart
-            CartItem cartItem = cartService.addItemToCart(customerId, productId, quantity);
+            CartItem cartItem = cartService.addItemToCart(customerId, productId, quantity, size);
             
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Product added to cart successfully");

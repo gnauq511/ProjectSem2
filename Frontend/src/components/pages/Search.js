@@ -108,7 +108,7 @@ const Search = () => {
                       alt={product.name} 
                       className="product-image"
                       onClick={() => navigate(`/product/${product.id}`)}
-                    />
+                    />  
                     <button 
                       className="add-to-cart-btn"
                       onClick={() => handleAddToCart(product.id)}

@@ -220,9 +220,13 @@ const OrdersPage = () => {
               <div className="order-details">
                 <div className="order-address">
                   <h4><FontAwesomeIcon icon={faMapMarkerAlt} /> Shipping Address</h4>
-                  <p>
-                    {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
-                  </p>
+                  {order.address ? (
+                    <p>
+                      {order.address.street}, {order.address.city}, {order.address.state} {order.address.zipCode}
+                    </p>
+                  ) : (
+                    <p>No address provided.</p>
+                  )}
                 </div>
                 
                 <div className="order-items">
@@ -238,7 +242,7 @@ const OrdersPage = () => {
                           />
                           <div className="item-details">
                             <span className="item-name">{item.product.name}</span>
-                            <span className="item-quantity">Qty: {item.quantity}</span>
+                            <span className="item-quantity">Qty: {item.quantity}{item.size ? `, Size: ${item.size}` : ''}</span>
                           </div>
                         </div>
                         <span className="item-price">${item.price * item.quantity}</span>

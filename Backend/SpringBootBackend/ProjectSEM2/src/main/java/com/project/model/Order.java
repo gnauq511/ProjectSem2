@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,12 +21,22 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id", nullable = false)
-    private Address shippingAddress;
+    private Address address;
 
     @Column(name = "total_amount", precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
+    @Column(name = "order_status")
     private String status;
+
+    @Column(name = "payment_status")
+    private String paymentStatus;
+
+    @Column(name = "payment_method")
+    private String paymentMethod;
+
+    @Column(name = "transaction_id")
+    private String transactionId;
 
     @Column(name = "order_date")
     private LocalDateTime orderDate;
@@ -34,7 +45,8 @@ public class Order {
     private List<OrderItem> orderItems;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Payment> payments;
+    @JsonIgnoreProperties("order")
+    private List<Payment> payments = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -52,12 +64,12 @@ public class Order {
         this.customer = customer;
     }
 
-    public Address getShippingAddress() {
-        return shippingAddress;
+    public Address getAddress() {
+        return address;
     }
 
-    public void setShippingAddress(Address shippingAddress) {
-        this.shippingAddress = shippingAddress;
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public BigDecimal getTotalAmount() {
@@ -74,6 +86,30 @@ public class Order {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     public LocalDateTime getOrderDate() {

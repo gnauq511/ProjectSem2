@@ -1,13 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingBag } from '@fortawesome/free-solid-svg-icons';
-import { CartContext } from '../../App';
 import '../../styles/ProductItem.css';
 
-const ProductItem = ({ product, onAddToCart }) => {
+const ProductItem = ({ product }) => {
   const navigate = useNavigate();
-  const { currentUser } = useContext(CartContext);
 
   // Handle null or undefined product
   if (!product) return null;
@@ -16,17 +12,7 @@ const ProductItem = ({ product, onAddToCart }) => {
     navigate(`/product/${product.id}`);
   };
 
-  const handleAddToCartClick = (e) => {
-    e.stopPropagation(); // Prevent navigation when clicking the add to cart button
-    
-    if (!currentUser) {
-      // If user is not logged in, redirect to login page
-      navigate('/login');
-      return;
-    }
-    
-    onAddToCart(product);
-  };
+
 
   return (
     <div className="product-card" onClick={handleProductClick}>
@@ -40,12 +26,7 @@ const ProductItem = ({ product, onAddToCart }) => {
             console.warn("Failed to load image:", product.image);
           }}
         />
-        <button 
-          className="add-to-cart-btn"
-          onClick={handleAddToCartClick}
-        >
-          <FontAwesomeIcon icon={faShoppingBag} /> Add to cart
-        </button>
+
       </div>
 
       <div className="product-info">

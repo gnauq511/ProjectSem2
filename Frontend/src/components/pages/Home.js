@@ -27,55 +27,34 @@ const Home = () => {
         const categoriesData = categoriesResponse.data;
         setCategories(categoriesData.map(cat => ({
           id: cat.id,
-          name: cat.name.toLowerCase(),
-          active: false
+          name: cat.name.toLowerCase()
         })));
         
         // Fetch products
         const productsResponse = await api.get('/products');
-        const productsData = productsResponse.data;
-        setProducts(productsData);
+        setProducts(productsResponse.data.content);
         
         setLoading(false);
       } catch(err) {
         console.error('Error fetching data:', err);
         setError(err.message);
         setLoading(false);
-        
-        
       }
     };
     fetchData();
   }, []);
   
-  // Filter products by category
-  const filterByCategory = (categoryId) => {
-    setCategories(prev => 
-      prev.map(cat => ({
-        ...cat,
-        active: cat.id === categoryId ? !cat.active : false
-      }))
-    );
-  };
-  
-  // Get filtered products
-  const getFilteredProducts = () => {
-    const activeCategory = categories.find(cat => cat.active);
-    if (!activeCategory) return products;
-    
-    return products.filter(product => 
-      product.category.toLowerCase() === activeCategory.name.toLowerCase()
-    );
-  };
-  
-  const filteredProducts = getFilteredProducts();
-  
-  // Handle adding to cart with animation
   const handleAddToCart = (product) => {
     addToCart(product);
-    
-    // Could add animation logic here
   };
+
+  if (loading) {
+    return <div className="loading-container wrapper">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error-container wrapper">Error: {error}</div>;
+  }
 
   return (
     <div className="home-page">
@@ -107,10 +86,10 @@ const Home = () => {
 
           <div className="categories flex gap mt">
             {categories.slice(0, 4).map(cat => (
-              <div 
+              <Link 
+                to={`/collection?category=${cat.id}`}
                 key={cat.id} 
-                className={`category-card ${cat.active ? 'active' : ''}`}
-                onClick={() => filterByCategory(cat.id)}
+                className="category-card"
               >
                 <div className="flex between">
                   <h5 className="h5-heading">{cat.name}</h5>
@@ -118,18 +97,19 @@ const Home = () => {
                     <FontAwesomeIcon icon={faArrowRight} />
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
       {/* Featured Product Section */}
-      <section>
+            {/* Featured Product Section */}
+            <section>
         <div className="wrapper p-b">
           <h2 className="h2-heading gradient-txt">
-          "At <span>Thread & Co.</span>, we believe fashion is self-expression. Every piece is <span>Handpicked</span>
-          to help you stand out, <span>Feel confident</span>, and stay true to who you are — wherever <span>Life</span> takes you."
+            "At <span>Thread & Co.</span>, we believe fashion is self-expression. Every piece is <span>Handpicked</span>
+            to help you stand out, <span>Feel confident</span>, and stay true to who you are — wherever <span>Life</span> takes you."
           </h2>
 
           <div className="bed-image mt">
@@ -162,7 +142,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section>  
 
       {/* Products Section */}
       <section>
@@ -173,7 +153,7 @@ const Home = () => {
           </p>
 
           <div className="products-grid mt">
-            {filteredProducts.slice(0, 5).map(product => (
+            {products.slice(0, 5).map(product => (
               <ProductItem 
                 key={product.id} 
                 product={product} 
@@ -182,7 +162,7 @@ const Home = () => {
             ))}
           </div>
 
-          {filteredProducts.length > 8 && (
+          {products.length > 8 && (
             <div className="center-btn mt">
               <Link to="/collection" className="btn brown-bg">View All Products</Link>
             </div>

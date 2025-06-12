@@ -23,6 +23,8 @@ public class OrderItem {
 
     private Integer quantity;
 
+    private String size;
+
     @Column(precision = 10, scale = 2) // Price at the time of order
     private BigDecimal price;
 
@@ -56,6 +58,14 @@ public class OrderItem {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
 
     public BigDecimal getPrice() {

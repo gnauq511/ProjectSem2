@@ -1,1 +1,27 @@
-node_modules/
+# dependencies
+/node_modules/
+
+# dotenv environment variables
+.env
+
+# build output
+/build/
+
+# testing
+/coverage/
+*.lcov
+
+# production logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor & OS
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Optional: ignore lock files if bạn dùng yarn/npm riêng
+# yarn.lock
+# package-lock.json

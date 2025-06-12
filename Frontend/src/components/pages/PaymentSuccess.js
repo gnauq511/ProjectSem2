@@ -1,260 +1,126 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState, useContext, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CartContext } from '../../App';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faTimesCircle, faShoppingBag, faHome, faBoxOpen, faMapMarkerAlt, faCalendarAlt, faMoneyBill, faReceipt } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 import '../../styles/PaymentPage.css';
 
 const PaymentSuccess = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [orderDetails, setOrderDetails] = useState(null);
-  const [paymentProcessed, setPaymentProcessed] = useState(false);
+  const paymentProcessed = useRef(false);
+  const { setCartItems } = useContext(CartContext);
   const location = useLocation();
   const navigate = useNavigate();
-  const { setCartItems } = useContext(CartContext);
 
   useEffect(() => {
-    // Prevent duplicate API calls
-    if (paymentProcessed) {
-      return;
-    }
-    
-    const completePayment = async () => {
+    const completeOrder = async () => {
+      if (paymentProcessed.current) {
+        return;
+      }
+      paymentProcessed.current = true;
+
       try {
-        // Get URL parameters
         const params = new URLSearchParams(location.search);
-        
-        // Parse all possible parameter variations
-        const paymentId = params.get('paymentId') || params.get('token');
-        const payerId = params.get('PayerID') || params.get('payerId');
-        const customerId = params.get('customerId');
-        const addressId = params.get('addressId');
+        const paymentMethod = params.get('method'); // 'paypal' or 'cod'
 
-        console.log('URL parameters:', location.search);
-        console.log('Parsed parameters:', { paymentId, payerId, customerId, addressId });
-        
-        // Check if we have the required parameters
-        if (!customerId || !addressId) {
-          throw new Error(`Missing customer or address ID: customerId=${customerId}, addressId=${addressId}`);
-        }
-        
-        // If we're missing PayPal parameters, show an error
-        if (!paymentId) {
-          throw new Error('Missing PayPal payment ID. Payment cannot be completed.');
-        }
-        
-        if (!payerId) {
-          throw new Error('Missing PayPal Payer ID. Payment cannot be completed.');
-        }
-        
-        // Convert string IDs to numbers for backend
-        const customerIdNum = parseInt(customerId, 10);
-        const addressIdNum = parseInt(addressId, 10);
+        if (paymentMethod === 'paypal') {
+          const paymentId = params.get('paymentId');
+          const PayerID = params.get('PayerID') || params.get('payerId');
+          const customerId = params.get('customerId');
+          const addressId = params.get('addressId');
 
-        console.log('Completing PayPal payment with:', { paymentId, payerId, customerId, addressId });
-
-        try {
-          // Check local storage for existing order details to avoid duplicate API calls
-          const storedOrderDetails = localStorage.getItem('lastCompletedOrder');
-          if (storedOrderDetails) {
-            const parsedOrder = JSON.parse(storedOrderDetails);
-            // Check if this is the same payment ID
-            if (parsedOrder.paymentId === paymentId) {
-              console.log('Found existing order details in local storage:', parsedOrder);
-              setOrderDetails(parsedOrder.order);
-              setPaymentProcessed(true);
-              setLoading(false);
-              return;
-            }
-          }
-          
-          // Call backend to complete payment - use the full, correct URL
-          console.log('Sending request to backend with params:', {
-            paymentId,
-            PayerID: payerId,
-            customerId: customerIdNum,
-            addressId: addressIdNum
-          });
-          
-          const response = await axios.post(
-            'http://localhost:8080/api/paypal/complete',
-            {},  // Empty body instead of null
-            {
-              params: {
-                paymentId: paymentId,
-                PayerID: payerId,
-                customerId: customerIdNum,
-                addressId: addressIdNum
-              }
-            }
-          );
-          
-          console.log('Payment completed successfully:', response.data);
-          setOrderDetails(response.data.order);
-          
-          // Store order details in local storage to prevent duplicate processing
-          localStorage.setItem('lastCompletedOrder', JSON.stringify({
-            paymentId,
-            order: response.data.order,
-            timestamp: new Date().toISOString()
-          }));
-          
-          // Clear cart items after successful payment
-          setCartItems([]);
-          
-          // Mark payment as processed to prevent duplicate calls
-          setPaymentProcessed(true);
-          setLoading(false);
-        } catch (err) {
-          console.error('Error completing payment:', err.response ? err.response.data : err.message);
-          
-          // Check if this is a "Cart is empty" error, which likely means payment was already processed
-          if (err.response && err.response.data && err.response.data.includes('Cart is empty')) {
-            console.log('Cart is empty error - payment likely already processed');
-            
-            // Try to fetch order details from backend using the payment ID
-            try {
-              const orderResponse = await axios.get(`http://localhost:8080/api/orders/by-payment/${paymentId}`);
-              if (orderResponse.data) {
-                setOrderDetails(orderResponse.data);
-                setPaymentProcessed(true);
-                setLoading(false);
-                return;
-              }
-            } catch (orderErr) {
-              console.error('Failed to fetch order by payment ID:', orderErr);
-            }
-            
-            // If we can't get the order details, show a generic success message
-            setOrderDetails({
-              id: 'unknown',
-              total: 'See order history',
-              items: [],
-              status: 'COMPLETED',
-              paymentMethod: 'PAYPAL',
-              transactionId: paymentId
-            });
-            setPaymentProcessed(true);
+          if (!paymentId || !PayerID || !customerId || !addressId) {
+            setError('Missing required PayPal payment parameters');
             setLoading(false);
             return;
           }
-          
-          setError(err.response ? `${err.response.status} ${err.response.statusText}: ${JSON.stringify(err.response.data)}` : err.message);
+
+          // Complete PayPal payment on backend
+          const response = await axios.post(
+            'http://localhost:8080/api/paypal/complete',
+            null,
+            {
+              params: {
+                paymentId,
+                PayerID,
+                customerId,
+                addressId,
+              },
+            }
+          );
+          setOrderDetails(response.data.order);
+
+        } else if (paymentMethod === 'cod') {
+          const orderId = params.get('orderId');
+          if (!orderId) {
+            setError('Missing required COD order ID');
+            setLoading(false);
+            return;
+          }
+
+          // Fetch COD order details from backend
+          const response = await axios.get(`http://localhost:8080/api/orders/${orderId}`);
+          setOrderDetails(response.data);
+
+        } else {
+          setError('Unknown payment method or missing parameters');
           setLoading(false);
+          return;
         }
+
+        // Clear cart for both successful PayPal and COD orders
+        setCartItems([]);
+        setLoading(false);
+
       } catch (err) {
-        console.error('Error completing payment:', err);
-        setError(err.message || 'Failed to complete payment');
+        console.error('Error completing order or fetching details:', err);
+        setError(err.response?.data || 'An error occurred.');
         setLoading(false);
       }
     };
 
-    completePayment();
-  }, [location.search, setCartItems, paymentProcessed]);
-
-  const handleContinueShopping = () => {
-    navigate('/');
-  };
-
-  if (loading) {
-    return (
-      <div className="payment-result-container">
-        <div className="payment-result-card">
-          <h2>Processing Payment</h2>
-          <div className="loader"></div>
-          <p>Please wait while we complete your order...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="payment-result-container">
-        <div className="payment-result-card error">
-          <h2>Payment Failed</h2>
-          <div className="error-icon">
-            <FontAwesomeIcon icon={faTimesCircle} />
-          </div>
-          <p className="error-message">{error}</p>
-          <div className="action-buttons">
-            <button className="primary-button" onClick={() => navigate('/cart')}>
-              <FontAwesomeIcon icon={faShoppingBag} /> Return to Cart
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    completeOrder();
+  }, [location.search, setCartItems]);
 
   return (
-    <div className="payment-result-container">
-      <div className="payment-result-card success">
-        <h2>Payment Successful!</h2>
-        <div className="success-icon">
-          <FontAwesomeIcon icon={faCheckCircle} />
-        </div>
-        
-        {orderDetails && (
-          <div className="order-details">
-            <h3>
-              <FontAwesomeIcon icon={faReceipt} /> Order Details
-            </h3>
-            
-            <div className="order-info-grid">
-              <div className="order-info-item">
-                <span className="info-label">
-                  <FontAwesomeIcon icon={faReceipt} /> Order ID:
-                </span>
-                <span className="info-value">{orderDetails.id}</span>
+    <div className="payment-page">
+      <div className="payment-container">
+        {loading ? (
+          <div className="payment-loading">
+            <h2>Processing your order...</h2>
+            <div className="loader"></div>
+          </div>
+        ) : error ? (
+          <div className="payment-error">
+            <h2>Order Error</h2>
+            <p>{error || "An unexpected error occurred while processing your order."}</p>
+            <button onClick={() => navigate('/cart')} className="return-button">
+              Return to Cart
+            </button>
+          </div>
+        ) : (
+          <div className="payment-success">
+            <div className="success-icon">✓</div>
+            <h2>Order Successful!</h2>
+            {orderDetails && (
+              <div className="order-details">
+                <p><strong>Order ID:</strong> {orderDetails.id}</p>
+                <p><strong>Total Amount:</strong> ${orderDetails.totalAmount?.toFixed(2)}</p>
+                <p><strong>Date:</strong> {new Date(orderDetails.orderDate).toLocaleString()}</p>
               </div>
-              
-              <div className="order-info-item">
-                <span className="info-label">
-                  <FontAwesomeIcon icon={faMoneyBill} /> Total Amount:
-                </span>
-                <span className="info-value">${orderDetails.totalAmount.toFixed(2)}</span>
-              </div>
-              
-              <div className="order-info-item">
-                <span className="info-label">
-                  <FontAwesomeIcon icon={faCalendarAlt} /> Order Date:
-                </span>
-                <span className="info-value">{new Date(orderDetails.orderDate).toLocaleString()}</span>
-              </div>
+            )}
+            <p>Thank you for your purchase. Your order has been successfully processed.</p>
+            <div className="action-buttons">
+              <button onClick={() => navigate('/')} className="continue-shopping-button">
+                Continue Shopping
+              </button>
+              <button onClick={() => navigate('/orders')} className="view-orders-button">
+                View My Orders
+              </button>
             </div>
-            
-            <h4>
-              <FontAwesomeIcon icon={faBoxOpen} /> Items
-            </h4>
-            <ul className="order-items-list">
-              {orderDetails.orderItems.map(item => (
-                <li key={item.id}>
-                  <span className="item-name">{item.product.name} x {item.quantity}</span>
-                  <span className="item-price">${(item.product.price * item.quantity).toFixed(2)}</span>
-                </li>
-              ))}
-            </ul>
-            
-            <h4>
-              <FontAwesomeIcon icon={faMapMarkerAlt} /> Shipping Address
-            </h4>
-            <p className="shipping-address">
-              {orderDetails.shippingAddress.street}, {orderDetails.shippingAddress.city}, {orderDetails.shippingAddress.state} {orderDetails.shippingAddress.zipCode}, {orderDetails.shippingAddress.country}
-            </p>
           </div>
         )}
-        
-        <div className="action-buttons">
-          <button className="primary-button" onClick={handleContinueShopping}>
-            <FontAwesomeIcon icon={faHome} /> Continue Shopping
-          </button>
-          <Link to="/orders" className="secondary-button">
-            <FontAwesomeIcon icon={faBoxOpen} /> View Orders
-          </Link>
-        </div>
       </div>
     </div>
   );

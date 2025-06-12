@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestParam; // Import @RequestParam
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Collections; // Import for Collections.emptyList()
 
@@ -23,8 +26,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
+    public ResponseEntity<Page<Product>> getAllProducts(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
+            Pageable pageable) {
+        Page<Product> products = productService.findWithFilters(categoryId, keyword, pageable);
         return ResponseEntity.ok(products);
     }
 

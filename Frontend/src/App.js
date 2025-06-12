@@ -15,6 +15,7 @@ import CartPage from './components/pages/CartPage';
 import OrdersPage from './components/pages/OrdersPage';
 import PaymentSuccess from './components/pages/PaymentSuccess';
 import PaymentCancel from './components/pages/PaymentCancel';
+
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
 import AdminProtectedRoute from './components/admin/AdminProtectedRoute';
@@ -22,6 +23,8 @@ import ScrollToTop from './services/ScrollToTop';
 import CartService from './services/CartService';
 import './styles/App.css';
 import './styles/Admin.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Create cart context for global state management
 export const CartContext = createContext();
@@ -54,88 +57,55 @@ function App() {
   const fetchCartItems = useCallback(async () => {
     if (currentUser && currentUser.customerId) {
       try {
-        console.log('Manually fetching cart items for user:', currentUser.customerId);
         const items = await CartService.getCartItems(currentUser.customerId);
         setCartItems(items.map(item => ({
-          ...item,
-          id: item.id,
+          id: item.id, // This is the cart_item_id
+          productId: item.product.id,
           name: item.product.name,
           price: item.product.price,
           image: item.product.image,
+          quantity: item.quantity,
+          size: item.size,
           selected: false,
-          quantity: item.quantity
         })));
       } catch (error) {
         console.error('Failed to fetch cart items:', error);
+        setCartItems([]);
       }
+    } else {
+      setCartItems([]);
     }
-  }, [currentUser, setCartItems]);
-  
-  // Expose fetchCartItems to window object so Navbar can access it
-  useEffect(() => {
-    window.fetchCartItems = fetchCartItems;
-    return () => {
-      delete window.fetchCartItems;
-    };
-  }, [currentUser, fetchCartItems]);
-  
-  // We're no longer automatically fetching cart items when user changes
-  // This prevents unnecessary API calls on page load
+  }, [currentUser]);
 
-  // Cart functions
-  const addToCart = async (product) => {
-    if (!currentUser) {
-      // Handle guest cart (localStorage or prompt to login)
-      alert('Please login to add items to your cart');
+  useEffect(() => {
+    fetchCartItems();
+  }, [fetchCartItems]);
+
+  const addToCart = useCallback(async (product, quantity, size) => {
+    if (!currentUser || !currentUser.customerId) {
+      console.error("Customer not logged in");
+      // Optionally, trigger login modal or redirect
       return;
     }
-    
-    // Use customerId instead of user id for cart operations
-    const customerId = currentUser.customerId;
-    if (!customerId) {
-      console.error('No customer ID found for user:', currentUser);
-      alert('Customer profile not found. Please try logging in again.');
-      return;
-    }
-    
+
     try {
-      await CartService.addToCart(customerId, product.id, 1);
-      
-      // Update local state
-      setCartItems(prev => {
-        const existingItem = prev.find(item => item.product?.id === product.id);
-        if (existingItem) {
-          return prev.map(item => 
-            item.product?.id === product.id 
-              ? { ...item, quantity: item.quantity + 1 } 
-              : item
-          );
-        } else {
-          return [...prev, { 
-            product: product,
-            id: Date.now(), // Temporary ID until we refresh from server
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            quantity: 1, 
-            selected: false 
-          }];
-        }
-      });
-      
-      // Refresh cart from server using our fetchCartItems function
-      await fetchCartItems();
+      const response = await CartService.addToCart(currentUser.customerId, product.id, quantity, size);
+
+      if (response.data && response.data.cartItem) {
+        // Optimistically update the cart or refetch
+        fetchCartItems();
+        console.log('Item added to cart:', response.data.cartItem);
+      }
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('Error adding item to cart:', error);
     }
-  };
+  }, [currentUser, fetchCartItems]);
 
   const removeFromCart = async (id) => {
     if (!currentUser || !currentUser.customerId) return;
-    
     try {
       await CartService.removeFromCart(id);
-      setCartItems(prev => prev.filter(item => item.id !== id));
+      await fetchCartItems(); // Refresh cart from server
     } catch (error) {
       console.error('Error removing from cart:', error);
     }
@@ -144,27 +114,21 @@ function App() {
   const updateQuantity = async (id, delta) => {
     if (!currentUser || !currentUser.customerId) return;
     
-    try {
-      const item = cartItems.find(item => item.id === id);
-      if (!item) return;
-      
-      const newQuantity = Math.max(1, item.quantity + delta);
-      
-      // Update local state immediately for better UX
-      setCartItems(prev =>
-        prev.map(item =>
-          item.id === id
-            ? { ...item, quantity: newQuantity }
-            : item
-        )
-      );
-      
-      // Update on server
-      await CartService.updateCartItemQuantity(id, newQuantity);
-    } catch (error) {
-      console.error('Error updating quantity:', error);
-      // Refresh cart to ensure consistency using our fetchCartItems function
-      await fetchCartItems();
+    const itemToUpdate = cartItems.find(item => item.id === id);
+    if (!itemToUpdate) return;
+    
+    const newQuantity = itemToUpdate.quantity + delta;
+    
+    if (newQuantity < 1) {
+      await removeFromCart(id);
+    } else {
+      try {
+        await CartService.updateCartItemQuantity(id, newQuantity);
+        await fetchCartItems(); // Refresh cart from server
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+        await fetchCartItems(); // Re-fetch to revert any optimistic UI changes
+      }
     }
   };
 
@@ -188,6 +152,17 @@ function App() {
       setCurrentUser
     }}>
       <div className="app">
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         {!isAdminRoute && <Navbar />}
         <ScrollToTop />
         <main className={isAdminRoute ? "admin-main-content" : "main-content"}>
@@ -203,8 +178,8 @@ function App() {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/search" element={<Search />} />
-            <Route path="/payment/success" element={<PaymentSuccess />} />
-            <Route path="/payment/cancel" element={<PaymentCancel />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-cancel" element={<PaymentCancel />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />

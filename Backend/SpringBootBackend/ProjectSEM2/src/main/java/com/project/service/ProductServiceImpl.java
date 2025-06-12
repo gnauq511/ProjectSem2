@@ -4,6 +4,8 @@ import com.project.model.Product;
 import com.project.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List; // Ensure List is imported
@@ -23,6 +25,11 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> getAllProducts() {
         // Return only products that are not deleted (deleted = 0)
         return productRepository.findAllActive();
+    }
+
+    @Override
+    public Page<Product> findWithFilters(Long categoryId, String keyword, Pageable pageable) {
+        return productRepository.findWithFilters(categoryId, keyword, pageable);
     }
 
     @Override

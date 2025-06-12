@@ -36,8 +36,8 @@
 }
 
 .main-image {
-  width: 100%;
-  height: 400px;
+  width: 75%;
+  height: 600px;
   overflow: hidden;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -193,6 +193,53 @@
   color: #666;
 }
 
+.size-selection {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.size-label {
+  font-weight: 600;
+  margin-bottom: 0; /* Reset margin */
+}
+
+.size-options {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.size-option {
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.size-option:hover {
+  background-color: #f5f5f5;
+  border-color: #999;
+}
+
+.size-option.active {
+  background-color: #8b5a2b;
+  color: white;
+  border-color: #8b5a2b;
+}
+
+.size-option:disabled {
+  background-color: #f8f8f8;
+  color: #ccc;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
 .add-to-cart-section {
   display: flex;
   gap: 20px;
@@ -233,22 +280,41 @@
   line-height: 40px;
 }
 
+/* Styles for the Add to Cart button */
 .add-to-cart-btn {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  padding: 0 30px;
-  height: 40px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  transition: background-color 0.3s;
+    flex-grow: 0; /* Prevent the button from growing */
+    flex-basis: 200px; /* Set a base width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px;
+    height: 40px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background-color 0.3s;
 }
 
 .add-to-cart-btn:hover {
   background-color: #6d4520;
+}
+
+.size-error {
+  color: #d9534f;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  height: 1rem;
+}
+
+.value.in-stock {
+  color: #28a745; /* Green for in-stock */
+  font-weight: 600;
+}
+
+.value.out-of-stock {
+  color: #dc3545; /* Red for out-of-stock */
+  font-weight: 600;
 }
 
 /* Product Tabs */

@@ -6,6 +6,7 @@ import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
 import { CartContext } from '../../App';
 import api from '../../services/api';
 import '../../styles/ProductDetail.css';
+import { toast } from 'react-toastify';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -13,6 +14,9 @@ const ProductDetail = () => {
   const { addToCart } = useContext(CartContext);
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [sizeError, setSizeError] = useState('');
+  const [stockForSelectedSize, setStockForSelectedSize] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
@@ -22,20 +26,19 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        // Ensure id is a number
         const productId = parseInt(id, 10);
         if (isNaN(productId)) {
           throw new Error('Invalid product ID');
         }
         
-        const response = await api.get(`/products/${productId}`);
+        const response = await api.get(`/products/${id}`);
         setProduct(response.data);
         
-        // Fetch related products (same category)
-        if (response.data.category && response.data.category.id) {
-          const categoryId = response.data.category.id;
-          const relatedResponse = await api.get(`/products?categoryId=${categoryId}`);
-          const filtered = relatedResponse.data
+        if (response.data.categoryId) {
+          // Fetch related products using the correct endpoint
+          const relatedResponse = await api.get(`/products?categoryId=${response.data.categoryId}`);
+          // The endpoint returns a Page object, so we access the 'content' property
+          const filtered = relatedResponse.data.content
             .filter(p => p.id !== response.data.id)
             .slice(0, 4);
           setRelatedProducts(filtered);
@@ -52,18 +55,46 @@ const ProductDetail = () => {
     if (id) {
       fetchProduct();
     }
+    window.scrollTo(0, 0);
   }, [id]);
-  window.scrollTo(0, 0);
 
   const handleQuantityChange = (delta) => {
     setQuantity(prev => Math.max(1, prev + delta));
   };
 
+  const getStockForSize = (size) => {
+    if (!product || !product.stockQuantity) {
+      return 0;
+    }
+    const lowerSize = size.toLowerCase();
+    const stock = product.stockQuantity;
+
+    // Handle inconsistent casing from the backend by checking for multiple possible keys
+    const keyCamelCase = `${lowerSize}Quantity`;   // For xlQuantity, xxlQuantity
+    const keyLowerCase = `${lowerSize}quantity`;   // For squantity, mquantity
+
+    return stock[keyCamelCase] || stock[keyLowerCase] || 0;
+  };
+
+  const handleSizeSelect = (size) => {
+    const stock = getStockForSize(size);
+    setSelectedSize(size);
+    setStockForSelectedSize(stock);
+    if (stock > 0) {
+      setSizeError('');
+    } else {
+      setSizeError('This size is out of stock.');
+    }
+  };
+
   const handleAddToCart = () => {
+    if (!selectedSize) {
+      setSizeError('Please select a size.');
+      return;
+    }
     if (product) {
-      for (let i = 0; i < quantity; i++) {
-        addToCart(product);
-      }
+      addToCart(product, quantity, selectedSize);
+      toast.success(`${product.name} has been added to your cart!`);
     }
   };
 
@@ -92,22 +123,9 @@ const ProductDetail = () => {
   const getProductImages = () => {
     if (!product) return [];
     
-    const images = [];
+    const images = [product.image, product.imageView2, product.imageView3, product.imageView4].filter(Boolean);
     
-    if (product.image) {
-      images.push(product.image);
-      if (product.imageView2) images.push(product.imageView2);
-      if (product.imageView3) images.push(product.imageView3);
-      if (product.imageView4) images.push(product.imageView4);
-    } 
-    else {
-      images.push('/images/placeholder.png');
-      for (let i = 1; i < 4; i++) {
-        images.push(`/images/placeholder${i}.png`);
-      }
-    }
-    
-    return images;
+    return images.length > 0 ? images : ['/images/placeholder.png'];
   };
 
   if (loading) {
@@ -132,7 +150,7 @@ const ProductDetail = () => {
   }
 
   const productImages = getProductImages();
-  const productRating = product.rating || 4.5; // Default rating if none provided
+  const productRating = product.rating || 4.5; // Default rating
 
   return (
     <div className="product-detail-page">
@@ -160,10 +178,7 @@ const ProductDetail = () => {
                   <img 
                     src={img} 
                     alt={`${product.name} - view ${index + 1}`} 
-                    onError={(e) => {
-                      e.target.src = '/images/placeholder.png'; // Fallback image
-                      console.warn("Failed to load image:", img);
-                    }}
+                    onError={(e) => { e.target.src = '/images/placeholder.png'; }}
                   />
                 </div>
               ))}
@@ -172,9 +187,7 @@ const ProductDetail = () => {
 
           <div className="product-info">
             <div className="category">
-              {product.category && typeof product.category === 'object' 
-                ? product.category.name 
-                : product.category}
+              {product.categoryName || 'Uncategorized'}
             </div>
             
             <h1 className="product-name">{product.name}</h1>
@@ -188,14 +201,28 @@ const ProductDetail = () => {
               </span>
             </div>
             
-            <div className="price">
-              {typeof product.price === 'object' 
-                ? `$${product.price}` 
-                : `$${product.price}`}
-            </div>
+            <div className="price">${product.price}</div>
             
             <div className="description">
               {product.description}
+            </div>
+
+            {/* Size Selection */}
+            <div className="size-selection">
+              <span className="size-label">Select Size:</span>
+              <div className="size-options">
+                {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                  <button
+                    key={size}
+                    className={`size-option ${selectedSize === size ? 'active' : ''}`}
+                    onClick={() => handleSizeSelect(size)}
+                    disabled={getStockForSize(size) === 0}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+              {sizeError && <p className="size-error">{sizeError}</p>}
             </div>
             
             <div className="product-meta">
@@ -206,8 +233,12 @@ const ProductDetail = () => {
               
               <div className="meta-item">
                 <span className="label">Availability:</span>
-                <span className="value">
-                  {product.inStock ? 'In Stock' : 'Out of Stock'}
+                <span className={`value ${selectedSize && stockForSelectedSize > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                  {selectedSize
+                    ? stockForSelectedSize > 0
+                      ? `${stockForSelectedSize} in stock`
+                      : 'Out of Stock'
+                    : 'Select a size'}
                 </span>
               </div>
             </div>

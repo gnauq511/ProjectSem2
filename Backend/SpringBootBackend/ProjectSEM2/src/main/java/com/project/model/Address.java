@@ -25,7 +25,7 @@ public class Address {
     private String zipCode;
     private String country;
 
-    @OneToMany(mappedBy = "shippingAddress") // An address can be a shipping address for multiple orders
+    @OneToMany(mappedBy = "address") // An address can be a shipping address for multiple orders
     private List<Order> orders;
 
 

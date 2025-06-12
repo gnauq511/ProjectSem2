@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../../services/api';
 import ProductItem from '../common/ProductItem';
 import { CartContext } from '../../App';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faTimes, faSort, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faTimes, faSort, faSearch, faChevronLeft, faChevronRight, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/Collection.css';
 
 const Collection = () => {
@@ -12,97 +13,115 @@ const Collection = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const location = useLocation();
+
+  // Filtering and Sorting State
   const [activeCategory, setActiveCategory] = useState(null);
   const [sortOption, setSortOption] = useState('default');
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showPriceSortDropdown, setShowPriceSortDropdown] = useState(false);
 
-  // Fetch products and categories
+  // Pagination State
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  // Fetch categories (only once)
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCategories = async () => {
       try {
-        setLoading(true);
-        
-        // Fetch categories
         const categoriesResponse = await api.get('/categories');
         setCategories(categoriesResponse.data);
-        
-        // Fetch products
-        const productsResponse = await api.get('/products');
-        setProducts(productsResponse.data);
-        
-        setLoading(false);
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('Error fetching categories:', err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  // Fetch products based on filters, sorting, and pagination
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const params = {
+          page,
+          size: 20,
+          categoryId: activeCategory,
+        };
+
+        // Map sortOption to API parameter
+        if (sortOption === 'price-asc') {
+            params.sort = 'price,asc';
+        } else if (sortOption === 'price-desc') {
+            params.sort = 'price,desc';
+        } else if (sortOption === 'name-asc') {
+            params.sort = 'name,asc';
+        } else if (sortOption === 'name-desc') {
+            params.sort = 'name,desc';
+        } else {
+            // 'default' or 'popular' or 'top-sales' - could be by product ID desc or a custom backend popular/sales sort
+            // For now, default sort will be handled by the backend if no 'sort' param is provided
+            // If 'top-sales' is selected, you might need a specific backend endpoint or logic
+        }
+
+        const response = await api.get('/products', { params });
+        
+        setProducts(response.data.content);
+        setTotalPages(response.data.page.totalPages);
+        setTotalProducts(response.data.page.totalElements);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching products:', err);
         setError(err.message);
+        setProducts([]);
+        setTotalPages(0);
+        setTotalProducts(0);
+      } finally {
         setLoading(false);
       }
     };
-    
-    fetchData();
-  }, []);
 
-  // Filter products by category
+    fetchProducts();
+  }, [page, activeCategory, sortOption]);
+
+  // New useEffect to read category from URL on component mount or URL change
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const categoryIdFromUrl = queryParams.get('category');
+    if (categoryIdFromUrl) {
+      setActiveCategory(parseInt(categoryIdFromUrl));
+    } else {
+      setActiveCategory(null); // Clear active category if no param in URL
+    }
+  }, [location.search]);
+
+  // Reset page to 0 when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [activeCategory, sortOption]);
+
   const handleCategoryFilter = (categoryId) => {
     setActiveCategory(activeCategory === categoryId ? null : categoryId);
   };
 
-  // Sort products
   const handleSort = (option) => {
     setSortOption(option);
+    setShowPriceSortDropdown(false); // Close dropdown when a sort option is selected
   };
 
-  // Filter and sort products
-  const getFilteredProducts = () => {
-    let filtered = [...products];
-    
-    // Apply category filter
-    if (activeCategory) {
-      filtered = filtered.filter(product => 
-        product.category && 
-        (typeof product.category === 'object' 
-          ? product.category.id === activeCategory
-          : product.category === activeCategory)
-      );
-    }
-    
-    // Apply search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(term) || 
-        (product.description && product.description.toLowerCase().includes(term))
-      );
-    }
-    
-    // Apply sorting
-    switch (sortOption) {
-      case 'price-low':
-        filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
-        break;
-      case 'name-asc':
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'name-desc':
-        filtered.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      default:
-        // Keep default order
-        break;
-    }
-    
-    return filtered;
+  const handlePriceSortToggle = () => {
+    setShowPriceSortDropdown(prev => !prev);
   };
 
-  const filteredProducts = getFilteredProducts();
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setPage(0); // Trigger search by resetting page, which is a dependency of the fetch effect
+  };
 
-  // Handle adding to cart
   const handleAddToCart = (product) => {
     addToCart(product);
-    // Could add a toast notification here
   };
 
   return (
@@ -112,72 +131,83 @@ const Collection = () => {
         <p className="avg-para">Discover our carefully curated furniture collection</p>
       </div>
 
-      <div className="collection-filters wrapper">
-        <div className="filter-controls">
-          <button 
-            className="filter-toggle btn outline-btn"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <FontAwesomeIcon icon={showFilters ? faTimes : faFilter} />
-            {showFilters ? ' Hide Filters' : ' Show Filters'}
-          </button>
-          
-          <div className="main-search-container collection-search">
-            <form onSubmit={(e) => e.preventDefault()} className="main-search-form">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="main-search-input"
-              />
-              <button type="submit" className="main-search-button">
-                <FontAwesomeIcon icon={faSearch} />
-              </button>
-            </form>
+      <div className="collection-main-content wrapper flex">
+        {/* Category Sidebar */}
+        <div className="sidebar-category-filters">
+          <div className="sidebar-header flex align-center">
+            <FontAwesomeIcon icon={faFilter} />
+            <h4 className="h4-heading">Category</h4>
           </div>
-          
-          <div className="sort-dropdown">
-            <label>
-              <FontAwesomeIcon icon={faSort} /> Sort by:
-              <select value={sortOption} onChange={(e) => handleSort(e.target.value)}>
-                <option value="default">Default</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="name-asc">Name: A-Z</option>
-                <option value="name-desc">Name: Z-A</option>
-              </select>
-            </label>
-          </div>
+          <ul className="category-list">
+            <li 
+              className={`category-list-item ${activeCategory === null ? 'active' : ''}`}
+              onClick={() => handleCategoryFilter(null)}
+            >
+              All Products
+            </li>
+           
+            {categories.map(category => (
+              <li
+                key={category.id}
+                className={`category-list-item ${activeCategory === category.id ? 'active' : ''}`}
+                onClick={() => handleCategoryFilter(category.id)}
+              >
+                {category.name}
+              </li>
+            ))}
+          </ul>
         </div>
-        
-        {showFilters && (
-          <div className="category-filters">
-            <h4>Categories</h4>
-            <div className="category-buttons">
-              {categories.map(category => (
-                <button
-                  key={category.id}
-                  className={`category-btn ${activeCategory === category.id ? 'active' : ''}`}
-                  onClick={() => handleCategoryFilter(category.id)}
-                >
-                  {category.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
 
-      <div className="collection-content wrapper">
-        {loading ? (
-          <div className="loading">Loading products...</div>
-        ) : error ? (
-          <div className="error">Error: {error}</div>
-        ) : (
-          <>
+        {/* Products and Sorting Area */}
+        <div className="products-content-area">
+          <div className="sort-controls flex align-center">
+            <div className="sort-options-group flex align-center gap-15">
+              <span className="sort-label">Sort by:</span>
+              <button
+                className={`sort-btn ${sortOption === 'default' ? 'active' : ''}`}
+                onClick={() => handleSort('default')}
+              >
+                Popular
+              </button>
+              <button
+                className={`sort-btn ${sortOption === 'latest' ? 'active' : ''}`}
+                onClick={() => handleSort('latest')}
+              >
+                Latest
+              </button>
+              <button
+                className={`sort-btn ${sortOption === 'top-sales' ? 'active' : ''}`} // Placeholder for Top Sales
+                onClick={() => handleSort('top-sales')} // This will currently use default backend sort
+              >
+                Top Sales
+              </button>
+              <div className="sort-price-dropdown-container">
+                  <button 
+                    className={`sort-btn price-btn ${sortOption.startsWith('price-') ? 'active' : ''}`}
+                    onClick={handlePriceSortToggle}
+                  >
+                    Price <FontAwesomeIcon icon={faAngleDown} />
+                  </button>
+                  {showPriceSortDropdown && (
+                      <div className="price-dropdown-content">
+                          <button 
+                              className={`dropdown-item ${sortOption === 'price-asc' ? 'active' : ''}`}
+                              onClick={() => handleSort('price,asc')}
+                          >
+                              Price: Low to High
+                          </button>
+                          <button 
+                              className={`dropdown-item ${sortOption === 'price-desc' ? 'active' : ''}`}
+                              onClick={() => handleSort('price,desc')}
+                          >
+                              Price: High to Low
+                          </button>
+                      </div>
+                  )}
+              </div>
+            </div>
             <div className="products-count">
-              Showing {filteredProducts.length} products
+              Showing {products.length} of {totalProducts} products
               {activeCategory && (
                 <button 
                   className="clear-filters"
@@ -187,34 +217,63 @@ const Collection = () => {
                 </button>
               )}
             </div>
-            
-            <div className="products-grid">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map(product => (
-                  <ProductItem 
-                    key={product.id} 
-                    product={product} 
-                    onAddToCart={handleAddToCart} 
-                  />
-                ))
-              ) : (
-                <div className="no-products">
-                  <p>No products found matching your criteria.</p>
+          </div>
+          
+          {/* Main content area for products (grid and pagination) */}
+          {loading ? (
+            <div className="loading">Loading products...</div>
+          ) : error ? (
+            <div className="error">Error: {error}</div>
+          ) : (
+            <> {/* This fragment correctly wraps the elements */}
+              <div className="products-grid">
+                {products.length > 0 ? (
+                  products.map(product => (
+                    <ProductItem 
+                      key={product.id} 
+                      product={product} 
+                      onAddToCart={handleAddToCart} 
+                    />
+                  ))
+                ) : (
+                  <div className="no-products">
+                    <p>No products found matching your criteria.</p>
+                  </div>
+                )}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="pagination-controls">
                   <button 
-                    className="btn brown-bg"
-                    onClick={() => {
-                      setActiveCategory(null);
-                      setSearchTerm('');
-                      setSortOption('default');
-                    }}
+                    onClick={() => setPage(page - 1)} 
+                    disabled={page === 0}
+                    className="pagination-btn arrow-btn"
                   >
-                    Reset Filters
+                    <FontAwesomeIcon icon={faChevronLeft} />
+                  </button>
+                  {
+                    Array.from({ length: totalPages }, (_, i) => i).map(p => (
+                      <button 
+                        key={p} 
+                        onClick={() => setPage(p)} 
+                        className={`pagination-btn ${page === p ? 'active' : ''}`}
+                      >
+                        {p + 1}
+                      </button>
+                    ))
+                  }
+                  <button 
+                    onClick={() => setPage(page + 1)} 
+                    disabled={page >= totalPages - 1}
+                    className="pagination-btn arrow-btn"
+                  >
+                    <FontAwesomeIcon icon={faChevronRight} />
                   </button>
                 </div>
               )}
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

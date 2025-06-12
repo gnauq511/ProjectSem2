@@ -144,3 +144,14 @@
     right: 1rem;
   }
 } 
+.size-selection {
+  display: flex;
+  align-items: center;
+}
+
+.size-dropdown {
+  padding: 5px 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}

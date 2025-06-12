@@ -21,18 +21,22 @@ const CartService = {
    * @param {number} customerId - The customer ID
    * @param {number} productId - The product ID to add
    * @param {number} quantity - The quantity to add (default: 1)
+   * @param {string} size - The size of the product
    * @returns {Promise} - Promise with the added cart item
    */
-  addToCart: async (customerId, productId, quantity = 1) => {
+  addToCart: async (customerId, productId, quantity = 1, size) => {
     try {
-      const response = await api.post(
-        `/cart/${customerId}/add?productId=${productId}&quantity=${quantity}`
-      );
+      const response = await api.post(`/cart/${customerId}/add`, null, {
+        params: {
+          productId,
+          quantity,
+          size,
+        },
+      });
       return response.data;
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert('Failed to add item to cart. Please try again.');
-      return null;
+      throw error;
     }
   },
 

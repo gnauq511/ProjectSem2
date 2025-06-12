@@ -1,9 +1,8 @@
 package com.project.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal; // Added for price
-import java.util.UUID;
+
 
 @Entity
 public class Product {
@@ -32,8 +31,12 @@ public class Product {
     @Column(name = "image_view_4") // Fourth view of the product
     private String imageView4;
 
-    @Column(name = "stock_quantity") // New field from diagram
-    private Integer stockQuantity;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "stock_quantity_id", referencedColumnName = "stock_quantity_id")
+    private StockQuantity stockQuantity;
+
+    @Version
+    private Long version = 0L;
 
     // Category relationship - simplified to avoid circular dependencies
     @Column(name = "category_id")
@@ -42,8 +45,7 @@ public class Product {
     @Transient
     private String categoryName;
     
-    @Column(name = "unique_id", unique = true)
-    private String uniqueId;
+
     
     @Column(name = "deleted", nullable = false, columnDefinition = "int default 0")
     private Integer deleted = 0;
@@ -113,11 +115,11 @@ public class Product {
         this.imageView4 = imageView4;
     }
 
-    public Integer getStockQuantity() {
+    public StockQuantity getStockQuantity() {
         return stockQuantity;
     }
 
-    public void setStockQuantity(Integer stockQuantity) {
+    public void setStockQuantity(StockQuantity stockQuantity) {
         this.stockQuantity = stockQuantity;
     }
 
@@ -137,13 +139,7 @@ public class Product {
         this.categoryName = categoryName;
     }
     
-    public String getUniqueId() {
-        return uniqueId;
-    }
-    
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
+
     
     public Integer getDeleted() {
         return deleted;
@@ -154,10 +150,7 @@ public class Product {
     }
     
     @PrePersist
-    public void generateUniqueIdIfNeeded() {
-        if (this.uniqueId == null) {
-            this.uniqueId = UUID.randomUUID().toString();
-        }
+    public void prePersist() {
         if (this.deleted == null) {
             this.deleted = 0;
         }

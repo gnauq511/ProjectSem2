@@ -561,3 +561,41 @@ input[type="checkbox"] {
   box-shadow: none;
   transform: none;
 }
+/* styles/CartPage.css */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  margin-bottom: 1rem;
+}
+
+.cart-item-options {
+  display: flex;
+  gap: 1rem;
+}
+
+.size-dropdown {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.quantity-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quantity-controls button {
+  padding: 0.5rem;
+  border: none;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.quantity-controls span {
+  padding: 0.5rem;
+  border: none;
+  background-color: #fff;
+  text-align: center;
+}
