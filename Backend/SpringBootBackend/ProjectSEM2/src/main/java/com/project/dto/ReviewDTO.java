@@ -8,15 +8,17 @@ public class ReviewDTO {
     private String comment;
     private LocalDateTime reviewDate;
     private String customerName;
+    private String mediaUrl;
 
     public ReviewDTO() {}
 
-    public ReviewDTO(Long id, Integer rating, String comment, LocalDateTime reviewDate, String customerName) {
+    public ReviewDTO(Long id, Integer rating, String comment, LocalDateTime reviewDate, String customerName, String mediaUrl) {
         this.id = id;
         this.rating = rating;
         this.comment = comment;
         this.reviewDate = reviewDate;
         this.customerName = customerName;
+        this.mediaUrl = mediaUrl;
     }
 
     // Getters and Setters
@@ -58,5 +60,13 @@ public class ReviewDTO {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
+
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
     }
 }

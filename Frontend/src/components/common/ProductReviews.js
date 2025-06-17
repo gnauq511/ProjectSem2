@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/ProductReviews.css';
 
 const ProductReviews = ({ reviews }) => {
+    const [selectedImage, setSelectedImage] = useState(null);
     if (!reviews || reviews.length === 0) {
         return (
             <div className="product-reviews">
@@ -30,8 +31,17 @@ const ProductReviews = ({ reviews }) => {
         return stars;
     };
 
+    const openImageModal = (imageUrl) => {
+        setSelectedImage(imageUrl);
+    };
+
+    const closeImageModal = () => {
+        setSelectedImage(null);
+    };
+
     return (
-        <section className="product-reviews">
+        <>
+            <section className="product-reviews">
             <h2>Product Reviews</h2>
             <div className="reviews-summary">
                 <div className="summary-overview">
@@ -72,12 +82,28 @@ const ProductReviews = ({ reviews }) => {
                                 <div className="review-stars">{renderStars(review.rating)}</div>
                                 <p className="review-date">{new Date(review.reviewDate).toLocaleDateString()}</p>
                                 <p className="review-comment">{review.comment}</p>
+                                {review.mediaUrl && (
+                                    <img 
+                                        src={review.mediaUrl} 
+                                        alt="Review media" 
+                                        className="review-media-thumbnail" 
+                                        onClick={() => openImageModal(review.mediaUrl)}
+                                    />
+                                )}
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
         </section>
+
+        {selectedImage && (
+            <div className="image-modal-overlay" onClick={closeImageModal}>
+                <span className="image-modal-close">&times;</span>
+                <img src={selectedImage} alt="Full size review" className="image-modal-content" />
+            </div>
+        )}
+        </>
     );
 };
 

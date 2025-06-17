@@ -86,10 +86,6 @@
     border-radius: 4px;
 }
 
-.reviews-list-container {
-    /* In a full implementation, this might have a filter sidebar */
-}
-
 .review-list h3 {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
@@ -131,6 +127,10 @@
     font-size: 0.9rem;
 }
 
+.review-user-info {
+    margin-bottom: 0.5rem;
+}
+
 .review-content .review-stars {
     margin-bottom: 0.5rem;
 }
@@ -141,6 +141,55 @@
 
 .review-content .star-empty {
     color: #ddd;
+}
+
+.review-comment {
+    margin-top: 10px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.review-media-thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: transform 0.2s;
+}
+
+.review-media-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+.image-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.image-modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.image-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .review-date {

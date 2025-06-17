@@ -29,6 +29,9 @@ public class Review {
     @Column(name = "review_date")
     private LocalDateTime reviewDate;
 
+    @Column(name = "media_url")
+    private String mediaUrl;
+
     public Long getId() {
         return id;
     }
@@ -75,5 +78,13 @@ public class Review {
 
     public void setReviewDate(LocalDateTime reviewDate) {
         this.reviewDate = reviewDate;
+    }
+
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
+
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
     }
 }

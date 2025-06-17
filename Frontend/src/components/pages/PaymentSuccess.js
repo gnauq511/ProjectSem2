@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CartContext } from '../../App';
 import axios from 'axios';
-import '../../styles/PaymentPage.css';
+import '../../styles/PaymentSuccess.css';
 
 const PaymentSuccess = () => {
   const [loading, setLoading] = useState(true);
@@ -84,8 +86,7 @@ const PaymentSuccess = () => {
   }, [location.search, setCartItems]);
 
   return (
-    <div className="payment-page">
-      <div className="payment-container">
+    <div className="payment-success-page">
         {loading ? (
           <div className="payment-loading">
             <h2>Processing your order...</h2>
@@ -100,28 +101,27 @@ const PaymentSuccess = () => {
             </button>
           </div>
         ) : (
-          <div className="payment-success">
-            <div className="success-icon">✓</div>
+          <div className="success-card">
+            <FontAwesomeIcon icon={faCheckCircle} className="success-icon" />
             <h2>Order Successful!</h2>
+            <p className="thank-you-message">Thank you for your purchase. Your order has been successfully processed.</p>
             {orderDetails && (
-              <div className="order-details">
-                <p><strong>Order ID:</strong> {orderDetails.id}</p>
-                <p><strong>Total Amount:</strong> ${orderDetails.totalAmount?.toFixed(2)}</p>
-                <p><strong>Date:</strong> {new Date(orderDetails.orderDate).toLocaleString()}</p>
+              <div className="order-summary">
+                <p><strong>Order ID:</strong> <span>{orderDetails.id}</span></p>
+                <p><strong>Total Amount:</strong> <span>${orderDetails.totalAmount?.toFixed(2)}</span></p>
+                <p><strong>Date:</strong> <span>{new Date(orderDetails.orderDate).toLocaleString()}</span></p>
               </div>
             )}
-            <p>Thank you for your purchase. Your order has been successfully processed.</p>
-            <div className="action-buttons">
-              <button onClick={() => navigate('/')} className="continue-shopping-button">
+            <div className="card-footer">
+              <button onClick={() => navigate('/')} className="btn btn-secondary">
                 Continue Shopping
               </button>
-              <button onClick={() => navigate('/orders')} className="view-orders-button">
+              <button onClick={() => navigate('/orders')} className="btn btn-primary">
                 View My Orders
               </button>
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 };

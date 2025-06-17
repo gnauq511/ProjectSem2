@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { useAlert } from '../../contexts/AlertContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMoneyBill, faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -8,6 +9,7 @@ import { CartContext } from '../../App';
 import '../../styles/CheckoutPage.css';
 
 const CheckoutPage = () => {
+  const { showAlert } = useAlert();
   const { setCartItems } = useContext(CartContext);
   const location = useLocation();
   const navigate = useNavigate();
@@ -37,7 +39,7 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     if (selectedItems.length === 0) {
-      alert('No items to checkout. Redirecting to cart.');
+      showAlert('No items to checkout. Redirecting to cart.', 'error');
       navigate('/cart');
     }
   }, [selectedItems, navigate]);
@@ -156,7 +158,7 @@ const CheckoutPage = () => {
         addressIdToUse = response.data.id;
       } catch (error) {
         console.error('Error saving address:', error);
-        alert('Failed to save shipping address.');
+        showAlert('Failed to save shipping address.', 'error');
         setProcessingOrder(false);
         setLoading(false);
         return;
@@ -164,7 +166,7 @@ const CheckoutPage = () => {
     }
 
     if (!addressIdToUse) {
-      alert('Could not determine a shipping address. Please fill out the form.');
+      showAlert('Could not determine a shipping address. Please fill out the form.', 'error');
       setProcessingOrder(false);
       setLoading(false);
       return;
@@ -198,7 +200,7 @@ const CheckoutPage = () => {
       }
     } catch (error) {
       console.error('Error during checkout:', error);
-      alert(error.response?.data?.message || 'An error occurred during checkout.');
+      showAlert(error.response?.data?.message || 'An error occurred during checkout.', 'error');
     } finally {
       setProcessingOrder(false);
       setLoading(false);

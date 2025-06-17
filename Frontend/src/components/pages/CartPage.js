@@ -5,9 +5,11 @@ import { faShoppingCart, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import CartItem from '../common/CartItem';
 import { CartContext } from '../../App';
 import axios from 'axios';
+import { useAlert } from '../../contexts/AlertContext';
 import '../../styles/CartPage.css';
 
 const CartPage = () => {
+  const { showAlert } = useAlert();
   const { cartItems, setCartItems } = useContext(CartContext);
   const [loading, setLoading] = useState(false);
   const [customerId, setCustomerId] = useState(null);
@@ -31,7 +33,7 @@ const CartPage = () => {
       setCartItems(fetchedItems);
     } catch (error) {
       console.error('Error fetching cart items:', error);
-      alert('Failed to load your cart. Please try refreshing the page.');
+      showAlert('Failed to load your cart. Please try refreshing the page.', 'error');
     } finally {
       setLoading(false);
     }
@@ -87,7 +89,7 @@ const CartPage = () => {
   const handleProceedToCheckout = () => {
     const selectedItems = cartItems.filter(item => item.selected);
     if (selectedItems.length === 0) {
-      alert("Please select products to checkout!");
+      showAlert("Please select products to checkout!", 'error');
     } else {
       navigate('/checkout', { state: { items: selectedItems } });
     }

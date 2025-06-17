@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAlert } from '../../contexts/AlertContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
@@ -6,6 +7,7 @@ import api from '../../services/api';
 import '../../styles/Search.css';
 
 const Search = () => {
+  const { showAlert } = useAlert();
   const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -59,10 +61,10 @@ const Search = () => {
       const customerId = 1;
       await api.post(`/cart/${customerId}/add`, { productId, quantity: 1 });
       // Show success message or update cart count
-      alert('Product added to cart!');
+      showAlert('Product added to cart!', 'success');
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert('Failed to add product to cart');
+      showAlert('Failed to add product to cart', 'error');
     }
   };
 

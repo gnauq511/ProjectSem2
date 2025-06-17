@@ -54,8 +54,7 @@ const CartService = {
       return response.data;
     } catch (error) {
       console.error('Error updating cart item quantity:', error);
-      alert('Failed to update cart item. Please try again.');
-      return null;
+      throw new Error('Failed to update cart item. Please try again.');
     }
   },
 
@@ -70,8 +69,7 @@ const CartService = {
       return response.data;
     } catch (error) {
       console.error('Error removing from cart:', error);
-      alert('Failed to remove item from cart. Please try again.');
-      return null;
+      throw new Error('Failed to remove item from cart. Please try again.');
     }
   },
 
@@ -86,8 +84,7 @@ const CartService = {
       return response.data;
     } catch (error) {
       console.error('Error clearing cart:', error);
-      alert('Failed to clear cart. Please try again.');
-      return null;
+      throw new Error('Failed to clear cart. Please try again.');
     }
   }
 };

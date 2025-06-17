@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback, createContext } from 'react';
+import React, { useState, useEffect, createContext, useCallback } from 'react';
+import { AlertProvider } from './contexts/AlertContext';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './components/pages/Home';
 import Collection from './components/pages/Collection';
 import ProductDetail from './components/pages/ProductDetail';
-import FeedbackForm from './components/pages/FeedbackForm';
 import ContactForm from './components/pages/ContactForm';
 import AboutUs from './components/pages/AboutUs';
 import Search from './components/pages/Search';
@@ -16,6 +16,8 @@ import CheckoutPage from './components/pages/CheckoutPage';
 import OrdersPage from './components/pages/OrdersPage';
 import PaymentSuccess from './components/pages/PaymentSuccess';
 import PaymentCancel from './components/pages/PaymentCancel';
+import OrderDetailPage from './components/pages/OrderDetailPage';
+import FeedbackPage from './components/pages/FeedbackPage';
 
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
@@ -152,47 +154,50 @@ function App() {
       currentUser,
       setCurrentUser
     }}>
-      <div className="app">
-        <ToastContainer
-          position="bottom-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
-        {!isAdminRoute && <Navbar />}
-        <ScrollToTop />
-        <main className={isAdminRoute ? "admin-main-content" : "main-content"}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/collection" element={<Collection />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/feedback" element={<FeedbackForm />} />
-            <Route path="/contact" element={<ContactForm />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-cancel" element={<PaymentCancel />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route element={<AdminProtectedRoute />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/orders" element={<AdminDashboard />} />
-            </Route>
-          </Routes>
-        </main>
-        {!isAdminRoute && <Footer />}
-      </div>
+      <AlertProvider>
+        <div className="app">
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+          {!isAdminRoute && <Navbar />}
+          <ScrollToTop />
+          <main className={isAdminRoute ? "admin-main-content" : "main-content"}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/collection" element={<Collection />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/contact" element={<ContactForm />} />
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/order/:id" element={<OrderDetailPage />} />
+              <Route path="/feedback/:orderId" element={<FeedbackPage />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/payment-cancel" element={<PaymentCancel />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route element={<AdminProtectedRoute />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/orders" element={<AdminDashboard />} />
+              </Route>
+            </Routes>
+          </main>
+          {!isAdminRoute && <Footer />}
+        </div>
+      </AlertProvider>
     </CartContext.Provider>
   );
 }

@@ -1,156 +1,92 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../../App';
-import OrderService from '../../services/OrderService';
+import api from '../../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faShoppingBag, 
-  faTimes, 
-  faInfoCircle, 
-  faCalendarAlt, 
-  faMoneyBillWave, 
-  faMapMarkerAlt, 
-  faBoxOpen,
   faSpinner,
   faExclamationCircle,
-  faCheckCircle
+  faMapMarkerAlt,
+  faTruck
 } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/OrdersPage.css';
 
 const OrdersPage = () => {
   const { currentUser } = useContext(CartContext);
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [cancellingOrderId, setCancellingOrderId] = useState(null);
-  const [expandedOrderId, setExpandedOrderId] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [activeTab, setActiveTab] = useState('Processing');
+
+  const tabs = [
+    { name: 'Processing', statuses: ['PENDING', 'PROCESSING'] },
+    { name: 'On Shipping', statuses: ['SHIPPING'] },
+    { name: 'Completed', statuses: ['DELIVERED'] },
+    { name: 'Canceled', statuses: ['CANCELLED'] },
+  ];
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      if (!currentUser || !currentUser.customerId) {
-        setError('Please login to view your orders');
-        setLoading(false);
-        return;
-      }
+    if (!currentUser || !currentUser.customerId) {
+      navigate('/login');
+      return;
+    }
 
+    const fetchOrders = async () => {
       try {
-        const data = await OrderService.getOrdersByCustomerId(currentUser.customerId);
-        // Sort orders by date (newest first)
-        const sortedOrders = data.sort((a, b) => 
-          new Date(b.orderDate) - new Date(a.orderDate)
-        );
+        setLoading(true);
+        const response = await api.get(`/orders/customer/${currentUser.customerId}`);
+        const sortedOrders = response.data.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
         setOrders(sortedOrders);
-        setLoading(false);
       } catch (err) {
         console.error('Error fetching orders:', err);
         setError('Failed to load orders. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, [currentUser]);
+  }, [currentUser, navigate]);
 
-  const [cancelError, setCancelError] = useState(null);
-
-  const handleCancelOrder = async (orderId) => {
-    if (!window.confirm('Are you sure you want to cancel this order?')) {
-      return;
-    }
-
-    setCancellingOrderId(orderId);
-    setCancelError(null);
-    
-    try {
-      await OrderService.cancelOrder(orderId);
-      
-      // Update the order status in the local state
-      setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, status: 'CANCELLED' } : order
-      ));
-      
-      // Show success message using state instead of direct DOM manipulation
-      setSuccessMessage('Order cancelled successfully');
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSuccessMessage(null);
-      }, 3000);
-      
-    } catch (err) {
-      console.error('Error cancelling order:', err);
-      
-      // Set specific error message based on the error
-      if (err.response) {
-        if (err.response.status === 400) {
-          setCancelError('Cannot cancel this order. It may already be processed or delivered.');
-        } else if (err.response.status === 404) {
-          setCancelError('Order not found. It may have been deleted or never existed.');
-        } else {
-          setCancelError(`Server error (${err.response.status}). Please try again later.`);
-        }
-      } else if (err.request) {
-        setCancelError('Network error. Please check your connection and try again.');
-      } else {
-        setCancelError('An unexpected error occurred. Please try again later.');
-      }
-    } finally {
-      setCancellingOrderId(null);
-    }
+  const getOrderCountForTab = (tabName) => {
+    const tab = tabs.find(t => t.name === tabName);
+    if (!tab) return 0;
+    return orders.filter(order => tab.statuses.includes(order.status)).length;
   };
 
-  const toggleOrderDetails = (orderId) => {
-    setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
-    // Reset cancel error when toggling order details
-    setCancelError(null);
+  const getFilteredOrders = () => {
+    const currentTab = tabs.find(tab => tab.name === activeTab);
+    return currentTab ? orders.filter(order => currentTab.statuses.includes(order.status)) : [];
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
-    const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
-    const formattedDate = date.toLocaleDateString(undefined, optionsDate);
-    const formattedTime = date.toLocaleTimeString(undefined, optionsTime);
-    return `${formattedDate} at ${formattedTime}`;
+  const formatPrice = (price) => {
+    if (price === null || price === undefined) return '$ 0';
+    return `$${price.toLocaleString('id-ID')}`;
   };
 
-  const getStatusClass = (status) => {
-    switch (status) {
-      case 'DELIVERED':
-        return 'status-delivered';
-      case 'SHIPPED':
-        return 'status-shipped';
-      case 'PROCESSING':
-        return 'status-processing';
-      case 'PENDING':
-        return 'status-pending';
-      case 'CANCELLED':
-        return 'status-cancelled';
-      default:
-        return '';
+  const renderOrderStatusTag = (status) => {
+    let text = 'On Process';
+    let className = 'on-process';
+
+    if (status === 'SHIPPING') {
+        text = 'On Deliver';
+        className = 'on-deliver';
+    } else if (status === 'DELIVERED') {
+        text = 'Completed';
+        className = 'Completed';
+    } else if (status === 'CANCELLED') {
+        text = 'Canceled';
+        className = 'canceled';
     }
-  };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'DELIVERED':
-        return <FontAwesomeIcon icon={faCheckCircle} />;
-      case 'CANCELLED':
-        return <FontAwesomeIcon icon={faTimes} />;
-      case 'PROCESSING':
-      case 'PENDING':
-        return <FontAwesomeIcon icon={faSpinner} className="fa-spin" />;
-      case 'SHIPPED':
-        return <FontAwesomeIcon icon={faBoxOpen} />;
-      default:
-        return <FontAwesomeIcon icon={faInfoCircle} />;
-    }
+    return <div className={`order-status-tag ${className}`}>{text}</div>;
   };
 
   if (loading) {
     return (
-      <div className="orders-container loading">
+      <div className="orders-page-container loading">
         <FontAwesomeIcon icon={faSpinner} spin size="3x" />
         <p>Loading your orders...</p>
       </div>
@@ -159,136 +95,95 @@ const OrdersPage = () => {
 
   if (error) {
     return (
-      <div className="orders-container error">
+      <div className="orders-page-container error">
         <FontAwesomeIcon icon={faExclamationCircle} size="3x" />
         <h2>Error</h2>
         <p>{error}</p>
-        <Link to="/login" className="login-button">
-          Login
-        </Link>
+        <Link to="/login" className="btn-link">Login</Link>
       </div>
     );
   }
 
-  if (orders.length === 0) {
-    return (
-      <div className="orders-container empty">
-        <FontAwesomeIcon icon={faShoppingBag} size="3x" />
-        <h2>No Orders Found</h2>
-        <p>You haven't placed any orders yet.</p>
-        <Link to="/collection" className="shop-now-button">
-          Shop Now
-        </Link>
-      </div>
-    );
-  }
+  const filteredOrders = getFilteredOrders();
 
   return (
-    <div className="orders-container">
-      {successMessage && (
-        <div className="cancel-success-message">
-          <FontAwesomeIcon icon={faCheckCircle} /> {successMessage}
-        </div>
-      )}
-      <h1 className="orders-title">
-        <FontAwesomeIcon icon={faShoppingBag} /> My Orders
-      </h1>
+    <div className="orders-page-container">
+      <h1 className="orders-main-title">My Orders</h1>
       
-      <div className="orders-list">
-        {orders.map(order => (
-          <div key={order.id} className="order-card">
-            <div className="order-header" onClick={() => toggleOrderDetails(order.id)}>
-              <div className="order-basic-info">
-                <div className="order-id">
-                  <span className="label">Order #:</span>
-                  <span className="value">{order.id}</span>
+      <div className="order-tabs">
+        {tabs.map(tab => (
+          <button
+            key={tab.name}
+            className={`tab-btn ${activeTab === tab.name ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.name)}
+          >
+            {tab.name}
+            <span className="order-count">{getOrderCountForTab(tab.name)}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="orders-list-new">
+        {filteredOrders.length > 0 ? (
+          filteredOrders.map(order => (
+            <div key={order.id} className="order-card-new">
+              <div className="order-card-header">
+                <div className="card-header-left">
+                  <FontAwesomeIcon icon={faShoppingBag} />
+                  <span className="order-id-new">CTH-{order.id}</span>
                 </div>
-                <div className="order-date-time-details">
-                  <div className="order-date">
-                    <span>{formatDate(order.orderDate).split(' at ')[0]}</span>
-                  </div>
-                  <div className="order-time">
-                    <span>{formatDate(order.orderDate).split(' at ')[1]}</span>
-                  </div>
-                </div>
+                {renderOrderStatusTag(order.status)}
               </div>
-              
-              <div className="order-status-price">
-                <div className={`order-status ${getStatusClass(order.status)}`}>
-                  {getStatusIcon(order.status)} {order.status}
+
+              {(order.status === 'SHIPPING' || order.status === 'DELIVERED') && (
+                <div className="shipping-progress-bar">
+                    <FontAwesomeIcon icon={faTruck} className="truck-icon"/>
+                    <span className="location-start">Ha Noi, Viet Nam</span>
+                    <div className="progress-dots"></div>
+                    <span className="est-arrival">{order.status === 'DELIVERED' ? 'Order Completed: ' : 'Estimated arrival: '}{new Date(new Date(order.orderDate).getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'})}</span>
+                    <div className="progress-dots"></div>
+                    <FontAwesomeIcon icon={faMapMarkerAlt} className="location-icon"/>
+                    <span className="location-end">{order.address?.city||'Your House'}, {order.address?.country || 'N/A'}</span>
                 </div>
-                <div className="order-total">
-                  <span>${order.totalAmount}</span>
+              )}
+
+              <div className="order-items-list-new">
+                {order.orderItems.map(item => (
+                  <div key={item.id} className="order-item-new">
+                    <img src={item.product.image} alt={item.product.name} className="item-image-new" onError={(e) => { e.target.onerror = null; e.target.src='/images/placeholder.png' }} />
+                    <div className="item-info-new">
+                      <p className="item-name-new">{item.product.name}</p>
+                      <p className="item-price-new">{formatPrice(item.price)} x{item.quantity}</p>
+                      <p className="item-size-new">Size: {item.size}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="order-card-footer">
+                <p className="total-price-new">Total: <span>{formatPrice(order.totalAmount)}</span></p>
+                <div className="footer-buttons">
+                  {order.status === 'DELIVERED' && (
+                    <button className="review-button" onClick={() => navigate(`/feedback/${order.id}`)}>Review</button>
+                  )}
+                  <button className="details-button" onClick={() => navigate(`/order/${order.id}`)}>Details</button>
                 </div>
               </div>
             </div>
-            
-            {expandedOrderId === order.id && (
-              <div className="order-details">
-                <div className="order-address">
-                  <h4><FontAwesomeIcon icon={faMapMarkerAlt} /> Shipping Address</h4>
-                  {order.address ? (
-                    <p>
-                      {order.address.street}, {order.address.city}, {order.address.state} {order.address.zipCode}
-                    </p>
-                  ) : (
-                    <p>No address provided.</p>
-                  )}
-                </div>
-                
-                <div className="order-items">
-                  <h4><FontAwesomeIcon icon={faBoxOpen} /> Items</h4>
-                  <ul>
-                    {order.orderItems.map(item => (
-                      <li key={item.id} className="order-item">
-                        <div className="item-info">
-                          <img 
-                            src={item.product.image || 'https://via.placeholder.com/50'} 
-                            alt={item.product.name} 
-                            className="item-image"
-                          />
-                          <div className="item-details">
-                            <span className="item-name">{item.product.name}</span>
-                            <span className="item-quantity">Qty: {item.quantity}{item.size ? `, Size: ${item.size}` : ''}</span>
-                          </div>
-                        </div>
-                        <span className="item-price">${item.price * item.quantity}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                {order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
-                  <div className="order-actions-cancel-button-container">
-                  <button 
-                    className="cancel-order-btn" 
-                    onClick={() => handleCancelOrder(order.id)}
-                    disabled={cancellingOrderId === order.id}
-                  >
-                    {cancellingOrderId === order.id ? (
-                      <>
-                        <FontAwesomeIcon icon={faSpinner} spin /> Cancelling...
-                      </>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon={faTimes} /> Cancel Order
-                      </>
-                    )}
-                  </button>
-                  </div>
-                )}
-                {cancelError && expandedOrderId === order.id && (
-                      <div className="cancel-error">
-                        <FontAwesomeIcon icon={faExclamationCircle} /> {cancelError}
-                      </div>
-                    )}
-              </div>
-            )}
+          ))
+        ) : (
+          <div className="no-orders-found">
+            <FontAwesomeIcon icon={faShoppingBag} size="3x" />
+            <p>No orders found in this category.</p>
+            {orders.length === 0 && 
+              <Link to="/collection" className="btn-link">Shop Now</Link>
+            }
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
 };
 
 export default OrdersPage;
+

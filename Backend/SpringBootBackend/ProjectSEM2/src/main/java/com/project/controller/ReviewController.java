@@ -6,6 +6,7 @@ import com.project.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,8 +22,13 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getReviewsByProductId(productId));
     }
 
-    @PostMapping
-    public ResponseEntity<Review> createReview(@RequestBody Review review) {
-        return ResponseEntity.ok(reviewService.createReview(review));
+    @PostMapping("/add")
+    public ResponseEntity<Review> createReview(@RequestParam("productId") Long productId,
+                                             @RequestParam("customerId") Long customerId,
+                                             @RequestParam("rating") Integer rating,
+                                             @RequestParam("comment") String comment,
+                                             @RequestParam(value = "media", required = false) MultipartFile mediaFile) {
+        Review createdReview = reviewService.createReview(productId, customerId, rating, comment, mediaFile);
+        return ResponseEntity.ok(createdReview);
     }
 }

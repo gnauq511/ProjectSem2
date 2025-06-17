@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons';
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
+import ProductItem from '../common/ProductItem';
 import { CartContext } from '../../App';
 import api from '../../services/api';
 import '../../styles/ProductDetail.css';
@@ -250,13 +251,7 @@ const ProductDetail = () => {
             <h2>Related Products</h2>
             <div className="product-detail__related-grid">
               {relatedProducts.map(p => (
-                <div key={p.id} className="product-card" onClick={() => navigate(`/product/${p.id}`)}>
-                  <img src={p.image || '/images/placeholder.png'} alt={p.name} className="product-card__image"/>
-                  <div className="product-card__info">
-                    <h4 className="product-card__name">{p.name}</h4>
-                    <p className="product-card__price">${p.price.toFixed(2)}</p>
-                  </div>
-                </div>
+                <ProductItem key={p.id} product={p} />
               ))}
             </div>
           </section>

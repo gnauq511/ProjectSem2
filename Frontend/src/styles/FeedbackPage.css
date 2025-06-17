@@ -1,0 +1,112 @@
+.feedback-page-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.back-to-orders-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: none;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-to-orders-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.review-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.review-item-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.review-item-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.review-item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.review-form h5 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.rating-input .fa-star {
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-right: 0.25rem;
+}
+
+.star-selected {
+  color: #ffc107;
+}
+
+.star-unselected {
+  color: #e0e0e0;
+}
+
+.comment-input textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.media-input input[type="file"] {
+  margin-top: 0.5rem;
+}
+
+.review-form > div {
+  margin-bottom: 1.5rem;
+}
+
+.submit-review-btn {
+  background-color: #8B4513;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.submit-review-btn:hover {
+  background-color: #6a350a;
+}
+
+.feedback-loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.2rem;
+}

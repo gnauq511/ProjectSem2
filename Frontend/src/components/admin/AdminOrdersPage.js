@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useAlert } from '../../contexts/AlertContext';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart, faSpinner, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/AdminOrdersPage.css';
 
 const AdminOrdersPage = () => {
+  const { showAlert } = useAlert();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +17,7 @@ const AdminOrdersPage = () => {
   const statusOptions = [
     'PENDING',
     'PROCESSING',
-    'SHIPPED',
+    'SHIPPING',
     'DELIVERED',
     'CANCELLED'
   ];
@@ -94,7 +96,7 @@ const AdminOrdersPage = () => {
       console.log(`Order #${orderId} status updated to ${newStatus}`);
     } catch (err) {
       console.error('Error updating order status:', err);
-      alert(`Failed to update order status: ${err.message}`);
+      showAlert(`Failed to update order status: ${err.message}`, 'error');
     }
   };
 

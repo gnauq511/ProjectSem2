@@ -145,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderById(orderId);
 
         // Update stock only when status changes to "SHIPPED" to prevent double-deduction
-        if ("SHIPPED    ".equalsIgnoreCase(status) && !"SHIPPED".equalsIgnoreCase(order.getStatus())) {
+        if ("SHIPPING".equalsIgnoreCase(status) && !"SHIPPING".equalsIgnoreCase(order.getStatus())) {
             for (OrderItem item : order.getOrderItems()) {
                 Product product = item.getProduct();
                 int quantity = item.getQuantity();
