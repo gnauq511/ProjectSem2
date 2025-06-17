@@ -11,6 +11,7 @@
   color: white;
   padding: 8rem 0;
   text-align: center;
+  
 }
 
 .about-hero-content {
@@ -47,7 +48,7 @@
   position: relative;
   border-radius: 1rem;
   overflow: hidden;
-  background-color: #f4f4f4;
+  /* background-color: #f4f4f4; */
   min-height: 300px;
   display: flex;
   align-items: center;
@@ -87,7 +88,7 @@
 }
 
 .text-center {
-  text-align: center;
+  text-align: center; 
 }
 
 .values-section h2 {
@@ -165,25 +166,57 @@
   text-align: center;
 }
 
-.member-image {
+/* .member-image {
   border-radius: 1rem;
   overflow: hidden;
   margin-bottom: 1rem;
   background-color: #e0e0e0;
-  height: 250px;
+  height: 315px;
   display: flex;
   align-items: center;
   justify-content: center;
-}
+} */
 
 .member-image:after {
-  content: "Team Member";
+  content: "";
   color: #999;
 }
 
-.member-image img {
-  display: none;
+/* .member-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 1rem;
+} */
+
+
+.member-image {
+  width: 100%;
+  height: 320px; /* bạn có thể điều chỉnh cao thấp tùy ý */
+  overflow: hidden;
+  border-radius: 1rem;
+  /* background-color: #f5f5f5; */
 }
+
+.member-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 1rem;
+  display: block;
+}
+
+
+
+
+
+
+
+
+
+
 
 .team-member:hover .member-image {
   background-color: #d0d0d0;

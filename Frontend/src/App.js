@@ -12,6 +12,7 @@ import Search from './components/pages/Search';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import CartPage from './components/pages/CartPage';
+import CheckoutPage from './components/pages/CheckoutPage';
 import OrdersPage from './components/pages/OrdersPage';
 import PaymentSuccess from './components/pages/PaymentSuccess';
 import PaymentCancel from './components/pages/PaymentCancel';
@@ -176,6 +177,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/search" element={<Search />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />

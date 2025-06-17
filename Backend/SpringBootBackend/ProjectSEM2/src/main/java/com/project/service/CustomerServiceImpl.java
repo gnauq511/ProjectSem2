@@ -1,5 +1,9 @@
 package com.project.service;
 
+import com.project.dto.AddressDTO;
+import com.project.dto.CustomerDetailsDTO;
+import com.project.dto.UserDTO;
+import com.project.model.Address;
 import com.project.model.Customer;
 import com.project.model.User; // Assuming User model exists and is linked
 import com.project.repository.CustomerRepository;
@@ -8,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -78,5 +83,35 @@ public class CustomerServiceImpl implements CustomerService {
     public void deleteCustomer(Long id) {
         Customer customer = getCustomerById(id);
         customerRepository.delete(customer);
+    }
+
+    @Override
+    public CustomerDetailsDTO getCustomerDetailsById(Long id) {
+        Customer customer = getCustomerById(id);
+        User user = customer.getUser();
+
+        UserDTO userDTO = new UserDTO(
+            customer.getFirstName(),
+            customer.getLastName(),
+            user.getEmail(),
+            customer.getPhone()
+        );
+
+        List<AddressDTO> addressDTOs = customer.getAddresses().stream()
+            .map(this::convertToAddressDTO)
+            .collect(Collectors.toList());
+
+        return new CustomerDetailsDTO(userDTO, addressDTOs);
+    }
+
+    private AddressDTO convertToAddressDTO(Address address) {
+        return new AddressDTO(
+            address.getId(),
+            address.getStreet(),
+            address.getCity(),
+            address.getState(),
+            address.getZipCode(),
+            address.getCountry()
+        );
     }
 }

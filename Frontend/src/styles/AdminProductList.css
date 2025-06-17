@@ -1,0 +1,197 @@
+/* AdminProductList.css */
+
+.admin-product-list {
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.admin-product-list h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.admin-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+
+.search-container input {
+  border: none;
+  outline: none;
+  margin-left: 10px;
+  width: 250px;
+}
+
+.add-category-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-table-container {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  background-color: #f2f2f2;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sort-icon {
+  margin-left: 5px;
+}
+
+.product-thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-buttons button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+}
+
+.edit-btn {
+  color: #007bff;
+}
+
+.delete-btn {
+  color: #dc3545;
+}
+
+.no-results {
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+  color: #666;
+}
+
+/* Pagination Styles */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 25px;
+  gap: 8px;
+}
+
+.pagination-controls button {
+  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #333;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s, color 0.3s;
+  min-width: 45px;
+  text-align: center;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+  background-color: #f0f0f0;
+}
+
+.pagination-controls button.active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.pagination-controls button:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+  background-color: #f9f9f9;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 450px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-actions .cancel-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.modal-actions .delete-btn {
+  background-color: #dc3545;
+  color: white;
+}

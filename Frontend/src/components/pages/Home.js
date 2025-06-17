@@ -57,7 +57,7 @@ const Home = () => {
   }
 
   return (
-    <div className="home-page">
+  <div className="home-page">
       {/* Hero Section */}
       <section className="hero-section wrapper flex">
         <div className="hero-content">
@@ -66,21 +66,21 @@ const Home = () => {
           </h1>
 
           <p className="big-para">
-            design your space
+            Discover Your Fashion Style
           </p>
           <Link to="/collection" className="btn golden-bg">Shop Now</Link>
 
           <div className="hero-image mt">
-            <img src="/images/main.png" alt="Modern furniture" />
+            <img src="/images/parkremovebg.png" alt="Modern furniture" />
           </div>
         </div>
       </section>
 
       {/* Categories Section */}
-      <section>
+   <section>
         <div className="wrapper p-b">
           <div className="flex gap between">
-            <h3 className="h3-heading">love where you live</h3>
+            <h3 className="h3-heading">Shine your way</h3>
             <Link to="/collection" className="btn golden-bg">view all collection</Link>
           </div>
 
@@ -108,31 +108,31 @@ const Home = () => {
             <section>
         <div className="wrapper p-b">
           <h2 className="h2-heading gradient-txt">
-            "At <span>Thread & Co.</span>, we believe fashion is self-expression. Every piece is <span>Handpicked</span>
-            to help you stand out, <span>Feel confident</span>, and stay true to who you are — wherever <span>Life</span> takes you."
+          "At <span>Thread & Co.</span>, we believe fashion is self-expression. Every piece is <span>Handpicked</span>
+          to help you stand out, <span>Feel confident</span>, and stay true to who you are — wherever <span>Life</span> takes you."
           </h2>
 
-          <div className="bed-image mt">
-            <img src="/images/bed.png" alt="Modern bed design" />
+          <div className="bed-image mt">  
+            <img src="/images/gggremovebg.png" alt="Modern bed design" />
 
             <div className="bed-detail">
-              <h6 className="h6-heading">Premium Oak Bed</h6>
+              <h6 className="h6-heading">White dress</h6>
               <p className="small-para">
-                Handcrafted from sustainable oak with a minimalist Scandinavian design.
+                The dress has an elegant design with a tight upper body, long sleeves and a square neckline for a subtle accent. The lower body is flared with soft pleated fabric, giving a gentle and feminine look.
               </p>
 
               <div className="flex between">
                 <p className="price">
-                  <del>$2000</del>&nbsp;&nbsp;
-                  $1500
+                  <del>$120</del>&nbsp;&nbsp;
+                  $75
                 </p>
                 <button 
-                  className="simple-icon brown-bg"
+                  className="simple-icon brown-bg"  
                   onClick={() => handleAddToCart({
                     id: 'featured-bed',
-                    name: 'Premium Oak Bed',
-                    price: '1500',
-                    image: '/images/bed.png', 
+                    name: 'White dress',
+                    price: '75',
+                    image: '/images/gggremovebg.png', 
                     category: 'furniture'
                   })}
                 >
@@ -145,11 +145,11 @@ const Home = () => {
       </section>  
 
       {/* Products Section */}
-      <section>
+       <section>
         <div className="wrapper p-b">
           <h2 className="h2-heading brown-txt">New Arrivals</h2>
           <p className="avg-para">
-            Discover our latest furniture pieces
+            Explore our latest products
           </p>
 
           <div className="products-grid mt">

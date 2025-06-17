@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPlus, faMinus, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { CartContext } from '../../App';
 import '../../styles/CartItem.css';
 
@@ -15,14 +15,15 @@ const CartItem = ({ item, onSizeChange, onQuantityChange }) => {
   const productName = item.name || product.name || 'Product';
   const productPrice = item.price || product.price || 0;
   const productImage = item.image || product.image || '/images/placeholder.png';
-  const currentSize = item.size || availableSizes[0]; // Default to 'S' if no size set
+  // Ensure item.size is not null or undefined, default to first available size if it is
+  const currentSize = item.size && availableSizes.includes(item.size) ? item.size : availableSizes[0];
 
   // Format price to currency
   const formatPrice = (price) => {
     const numPrice = typeof price === 'string'
       ? parseInt(price.replace(/\D/g, ''))
       : price;
-    return numPrice.toLocaleString();
+    return numPrice.toLocaleString('en-US'); // Ensure formatting includes thousands separator
   };
 
   // Calculate item total
@@ -48,7 +49,9 @@ const CartItem = ({ item, onSizeChange, onQuantityChange }) => {
           className="cart-checkbox"
           id={`item-${item.id}`}
         />
-        <label htmlFor={`item-${item.id}`} className="checkbox-label"></label>
+        <label htmlFor={`item-${item.id}`} className="custom-checkbox">
+          {item.selected && <FontAwesomeIcon icon={faCheck} />}
+        </label>
       </div>
 
       <div className="cart-item-image">
@@ -56,7 +59,7 @@ const CartItem = ({ item, onSizeChange, onQuantityChange }) => {
           src={
             productImage && productImage.startsWith('http')
               ? productImage
-              : productImage && productImage.startsWith('/')
+              : productImage && productImage.startsWith('/') && !productImage.startsWith('//')
                 ? productImage
                 : `/${productImage}`
           }
@@ -69,13 +72,13 @@ const CartItem = ({ item, onSizeChange, onQuantityChange }) => {
         />
       </div>
 
-      <div className="cart-item-details">
+      <div className="cart-item-details-main">
         <h3 className="product-name">{productName}</h3>
-        <p className="product-price">₫{formatPrice(productPrice)}</p>
+        <p className="product-price-single">${formatPrice(productPrice)}</p>
       </div>
 
-      {/* Size Selection */}
-      <div className="size-selection">
+      <div className="cart-item-controls">
+        {/* Size Selection */}
         <select
           value={currentSize}
           onChange={handleSizeChange}
@@ -87,37 +90,36 @@ const CartItem = ({ item, onSizeChange, onQuantityChange }) => {
             </option>
           ))}
         </select>
-      </div>
 
-      <div className="quantity-control">
+        {/* Quantity Control */}
+        <div className="quantity-control">
+          <button
+            className="quantity-btn"
+            onClick={() => onQuantityChange(item.id, item.quantity - 1)}
+            aria-label="Decrease quantity"
+            disabled={item.quantity <= 1} // Disable if quantity is 1 or less
+          >
+            <FontAwesomeIcon icon={faMinus} />
+          </button>
+          <span className="quantity-value">{item.quantity}</span>
+          <button
+            className="quantity-btn"
+            onClick={() => onQuantityChange(item.id, item.quantity + 1)}
+            aria-label="Increase quantity"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+          </button>
+        </div>
+
+        <p className="item-total-price">${formatPrice(itemTotal)}</p>
         <button
-          className="quantity-btn"
-          onClick={() => onQuantityChange(item.id, item.quantity - 1)}
-          aria-label="Decrease quantity"
+          className="delete-btn"
+          onClick={() => removeFromCart(item.id)}
+          aria-label="Remove item"
         >
-          <FontAwesomeIcon icon={faMinus} />
-        </button>
-        <span className="quantity-value">{item.quantity}</span>
-        <button
-          className="quantity-btn"
-          onClick={() => onQuantityChange(item.id, item.quantity + 1)}
-          aria-label="Increase quantity"
-        >
-          <FontAwesomeIcon icon={faPlus} />
+          <FontAwesomeIcon icon={faTrash} />
         </button>
       </div>
-
-      <div className="cart-item-total">
-        <p className="item-total">${formatPrice(itemTotal)}</p>
-      </div>
-
-      <button
-        className="delete-btn"
-        onClick={() => removeFromCart(item.id)}
-        aria-label="Remove item"
-      >
-        <FontAwesomeIcon icon={faTrash} />
-      </button>
     </div>
   );
 };

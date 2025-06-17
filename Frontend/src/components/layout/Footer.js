@@ -17,8 +17,7 @@ const Footer = () => {
           <div className="footer-section about-section">
             <h3 className="h3-heading">Thread & Co.</h3>
             <p>
-              Our furniture collection blends modern Scandinavian design with sculptural forms, 
-              enhancing any space with comfort and style.
+          Our fashion collections combine Scandinavian minimalism with modern, artful silhouettes, bringing elegance and comfort to every lifestyle.
             </p>
             <div className="input-container">
               <input type="email" placeholder="Your email" />

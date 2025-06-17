@@ -8,7 +8,7 @@ const AdminProductForm = ({ product, onCancel, onProductUpdated, onProductAdded 
     name: '',
     description: '',
     price: '',
-    stockQuantity: '',
+    stockQuantity: { squantity: 0, mquantity: 0, lquantity: 0, xlQuantity: 0, xxlQuantity: 0 },
     categoryId: '',
     image: '',
     imageView2: '',
@@ -27,11 +27,21 @@ const AdminProductForm = ({ product, onCancel, onProductUpdated, onProductAdded 
     
     // If editing an existing product, populate the form
     if (product) {
+      const existingStock = product.stockQuantity && typeof product.stockQuantity === 'object' 
+        ? product.stockQuantity 
+        : {};
+
       setFormData({
         name: product.name || '',
         description: product.description || '',
         price: product.price || '',
-        stockQuantity: product.stockQuantity || '',
+        stockQuantity: {
+          squantity: existingStock.squantity ?? 0,
+          mquantity: existingStock.mquantity ?? 0,
+          lquantity: existingStock.lquantity ?? 0,
+          xlQuantity: existingStock.xlQuantity ?? 0,
+          xxlQuantity: existingStock.xxlQuantity ?? 0,
+        },
         categoryId: product.categoryId || '',
         image: product.image || '',
         imageView2: product.imageView2 || '',
@@ -59,6 +69,17 @@ const AdminProductForm = ({ product, onCancel, onProductUpdated, onProductAdded 
     });
   };
 
+  const handleStockChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({
+      ...prevData,
+      stockQuantity: {
+        ...prevData.stockQuantity,
+        [name]: value
+      }
+    }));
+  };
+
   const validateForm = () => {
     if (!formData.name.trim()) {
       setError('Product name is required');
@@ -72,9 +93,12 @@ const AdminProductForm = ({ product, onCancel, onProductUpdated, onProductAdded 
       setError('Please enter a valid price');
       return false;
     }
-    if (!formData.stockQuantity || isNaN(formData.stockQuantity) || parseInt(formData.stockQuantity) < 0) {
-      setError('Please enter a valid stock quantity');
-      return false;
+    for (const key in formData.stockQuantity) {
+      const value = formData.stockQuantity[key];
+      if (value === '' || isNaN(value) || parseInt(value) < 0) {
+        setError('Please enter a valid stock quantity (0 or more) for all sizes.');
+        return false;
+      }
     }
     if (!formData.categoryId) {
       setError('Please select a category');
@@ -100,10 +124,15 @@ const AdminProductForm = ({ product, onCancel, onProductUpdated, onProductAdded 
     
     try {
       // Format data for API
+      const stockData = {};
+      for (const [size, qty] of Object.entries(formData.stockQuantity)) {
+        stockData[size] = parseInt(qty, 10) || 0;
+      }
+
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
-        stockQuantity: parseInt(formData.stockQuantity)
+        stockQuantity: stockData
       };
       
       let response;
@@ -126,7 +155,7 @@ const AdminProductForm = ({ product, onCancel, onProductUpdated, onProductAdded 
           name: '',
           description: '',
           price: '',
-          stockQuantity: '',
+          stockQuantity: { squantity: 0, mquantity: 0, lquantity: 0, xlQuantity: 0, xxlQuantity: 0 },
           categoryId: '',
           image: '',
           imageView2: '',
@@ -203,18 +232,30 @@ const AdminProductForm = ({ product, onCancel, onProductUpdated, onProductAdded 
             />
           </div>
           
-          <div className="form-group">
-            <label htmlFor="stockQuantity">Stock Quantity *</label>
-            <input
-              type="number"
-              id="stockQuantity"
-              name="stockQuantity"
-              value={formData.stockQuantity}
-              onChange={handleChange}
-              placeholder="0"
-              min="0"
-              required
-            />
+          <div className="form-group stock-inputs">
+            <label>Stock Quantity *</label>
+            <div className="size-inputs-container">
+              <div className="size-input">
+                <label htmlFor="squantity">Size S</label>
+                <input type="number" id="squantity" name="squantity" value={formData.stockQuantity.squantity} onChange={handleStockChange} min="0" required />
+              </div>
+              <div className="size-input">
+                <label htmlFor="mquantity">Size M</label>
+                <input type="number" id="mquantity" name="mquantity" value={formData.stockQuantity.mquantity} onChange={handleStockChange} min="0" required />
+              </div>
+              <div className="size-input">
+                <label htmlFor="lquantity">Size L</label>
+                <input type="number" id="lquantity" name="lquantity" value={formData.stockQuantity.lquantity} onChange={handleStockChange} min="0" required />
+              </div>
+              <div className="size-input">
+                <label htmlFor="xlQuantity">Size XL</label>
+                <input type="number" id="xlQuantity" name="xlQuantity" value={formData.stockQuantity.xlQuantity} onChange={handleStockChange} min="0" required />
+              </div>
+              <div className="size-input">
+                <label htmlFor="xxlQuantity">Size XXL</label>
+                <input type="number" id="xxlQuantity" name="xxlQuantity" value={formData.stockQuantity.xxlQuantity} onChange={handleStockChange} min="0" required />
+              </div>
+            </div>
           </div>
         </div>
         

@@ -107,8 +107,12 @@ const OrdersPage = () => {
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    const date = new Date(dateString);
+    const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
+    const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
+    const formattedDate = date.toLocaleDateString(undefined, optionsDate);
+    const formattedTime = date.toLocaleTimeString(undefined, optionsTime);
+    return `${formattedDate} at ${formattedTime}`;
   };
 
   const getStatusClass = (status) => {
@@ -199,9 +203,13 @@ const OrdersPage = () => {
                   <span className="label">Order #:</span>
                   <span className="value">{order.id}</span>
                 </div>
-                <div className="order-date">
-                  <FontAwesomeIcon icon={faCalendarAlt} />
-                  <span>{formatDate(order.orderDate)}</span>
+                <div className="order-date-time-details">
+                  <div className="order-date">
+                    <span>{formatDate(order.orderDate).split(' at ')[0]}</span>
+                  </div>
+                  <div className="order-time">
+                    <span>{formatDate(order.orderDate).split(' at ')[1]}</span>
+                  </div>
                 </div>
               </div>
               
@@ -210,7 +218,6 @@ const OrdersPage = () => {
                   {getStatusIcon(order.status)} {order.status}
                 </div>
                 <div className="order-total">
-                  <FontAwesomeIcon icon={faMoneyBillWave} />
                   <span>${order.totalAmount}</span>
                 </div>
               </div>
@@ -252,29 +259,29 @@ const OrdersPage = () => {
                 </div>
                 
                 {order.status !== 'CANCELLED' && order.status !== 'DELIVERED' && (
-                  <div className="order-actions">
-                    <button 
-                      className="cancel-order-btn" 
-                      onClick={() => handleCancelOrder(order.id)}
-                      disabled={cancellingOrderId === order.id}
-                    >
-                      {cancellingOrderId === order.id ? (
-                        <>
-                          <FontAwesomeIcon icon={faSpinner} spin /> Cancelling...
-                        </>
-                      ) : (
-                        <>
-                          <FontAwesomeIcon icon={faTimes} /> Cancel Order
-                        </>
-                      )}
-                    </button>
-                    {cancelError && order.id === cancellingOrderId && (
+                  <div className="order-actions-cancel-button-container">
+                  <button 
+                    className="cancel-order-btn" 
+                    onClick={() => handleCancelOrder(order.id)}
+                    disabled={cancellingOrderId === order.id}
+                  >
+                    {cancellingOrderId === order.id ? (
+                      <>
+                        <FontAwesomeIcon icon={faSpinner} spin /> Cancelling...
+                      </>
+                    ) : (
+                      <>
+                        <FontAwesomeIcon icon={faTimes} /> Cancel Order
+                      </>
+                    )}
+                  </button>
+                  </div>
+                )}
+                {cancelError && expandedOrderId === order.id && (
                       <div className="cancel-error">
                         <FontAwesomeIcon icon={faExclamationCircle} /> {cancelError}
                       </div>
                     )}
-                  </div>
-                )}
               </div>
             )}
           </div>

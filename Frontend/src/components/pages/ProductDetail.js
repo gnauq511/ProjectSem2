@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faShoppingBag, faStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons';
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
 import { CartContext } from '../../App';
 import api from '../../services/api';
 import '../../styles/ProductDetail.css';
+import ProductReviews from '../common/ProductReviews';
 import { toast } from 'react-toastify';
 
 const ProductDetail = () => {
+  // --- STATE AND HOOKS ---
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useContext(CartContext);
@@ -16,308 +18,252 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState(null);
   const [sizeError, setSizeError] = useState('');
-  const [stockForSelectedSize, setStockForSelectedSize] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [reviews, setReviews] = useState([]);
 
+  // --- DATA FETCHING ---
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const productId = parseInt(id, 10);
-        if (isNaN(productId)) {
-          throw new Error('Invalid product ID');
-        }
-        
         const response = await api.get(`/products/${id}`);
         setProduct(response.data);
-        
+
         if (response.data.categoryId) {
-          // Fetch related products using the correct endpoint
           const relatedResponse = await api.get(`/products?categoryId=${response.data.categoryId}`);
-          // The endpoint returns a Page object, so we access the 'content' property
           const filtered = relatedResponse.data.content
             .filter(p => p.id !== response.data.id)
             .slice(0, 4);
           setRelatedProducts(filtered);
         }
-        
-        setLoading(false);
       } catch (err) {
         console.error('Error fetching product:', err);
         setError('Failed to load product details. Please try again later.');
+      } finally {
         setLoading(false);
+      }
+    };
+
+    const fetchReviews = async () => {
+      try {
+        const response = await api.get(`/reviews/product/${id}`);
+        setReviews(response.data);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+        // Non-critical, so we don't set a main error state
       }
     };
 
     if (id) {
       fetchProduct();
+      fetchReviews();
     }
     window.scrollTo(0, 0);
   }, [id]);
 
-  const handleQuantityChange = (delta) => {
-    setQuantity(prev => Math.max(1, prev + delta));
-  };
-
+  // --- HELPER FUNCTIONS ---
   const getStockForSize = (size) => {
-    if (!product || !product.stockQuantity) {
-      return 0;
-    }
+    if (!product || !product.stockQuantity) return 0;
     const lowerSize = size.toLowerCase();
     const stock = product.stockQuantity;
-
-    // Handle inconsistent casing from the backend by checking for multiple possible keys
-    const keyCamelCase = `${lowerSize}Quantity`;   // For xlQuantity, xxlQuantity
-    const keyLowerCase = `${lowerSize}quantity`;   // For squantity, mquantity
-
+    const keyCamelCase = `${lowerSize}Quantity`;
+    const keyLowerCase = `${lowerSize}quantity`;
     return stock[keyCamelCase] || stock[keyLowerCase] || 0;
   };
 
+  const getProductImages = () => {
+    if (!product) return [];
+    const images = [product.image, product.imageView2, product.imageView3, product.imageView4].filter(Boolean);
+    return images.length > 0 ? images : ['/images/placeholder.png'];
+  };
+
+  // --- EVENT HANDLERS ---
+  const handleGoBack = () => navigate(-1);
+
   const handleSizeSelect = (size) => {
-    const stock = getStockForSize(size);
     setSelectedSize(size);
-    setStockForSelectedSize(stock);
-    if (stock > 0) {
-      setSizeError('');
-    } else {
-      setSizeError('This size is out of stock.');
+    setSizeError('');
+  };
+
+  const handleQuantityChange = (delta) => {
+    const newQuantity = quantity + delta;
+    const stock = getStockForSize(selectedSize);
+    if (newQuantity >= 1 && newQuantity <= stock) {
+      setQuantity(newQuantity);
     }
   };
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      setSizeError('Please select a size.');
+      toast.error('Please select a size.');
       return;
     }
-    if (product) {
-      addToCart(product, quantity, selectedSize);
-      toast.success(`${product.name} has been added to your cart!`);
+    addToCart(product, quantity, selectedSize);
+    toast.success(`${product.name} added to cart!`);
+  };
+
+  const handleCheckoutNow = () => {
+    if (!selectedSize) {
+      toast.error('Please select a size.');
+      return;
     }
+    // Add to cart for persistence in case the user navigates away
+    addToCart(product, quantity, selectedSize);
+
+    // Prepare the item to be passed directly to the checkout page
+    const itemForCheckout = {
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      image: getProductImages()[0], // Use the main product image
+      size: selectedSize,
+    };
+
+    // Navigate to checkout, passing the item in the state
+    navigate('/checkout', { state: { items: [itemForCheckout] } });
   };
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
+  // --- RENDER FUNCTIONS ---
   const renderRating = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
-    
     for (let i = 1; i <= 5; i++) {
-      if (i <= fullStars) {
-        stars.push(<FontAwesomeIcon key={i} icon={faStar} className="star filled" />);
-      } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(<FontAwesomeIcon key={i} icon={faStarHalfAlt} className="star half" />);
-      } else {
-        stars.push(<FontAwesomeIcon key={i} icon={farStar} className="star empty" />);
-      }
+      if (i <= fullStars) stars.push(<FontAwesomeIcon key={i} icon={faStar} />);
+      else if (i === fullStars + 1 && hasHalfStar) stars.push(<FontAwesomeIcon key={i} icon={faStarHalfAlt} />);
+      else stars.push(<FontAwesomeIcon key={i} icon={farStar} />);
     }
-    
     return stars;
   };
 
-  const getProductImages = () => {
-    if (!product) return [];
-    
-    const images = [product.image, product.imageView2, product.imageView3, product.imageView4].filter(Boolean);
-    
-    return images.length > 0 ? images : ['/images/placeholder.png'];
-  };
+  // --- LOADING AND ERROR STATES ---
+  if (loading) return <div className="wrapper"><p>Loading...</p></div>;
+  if (error) return <div className="wrapper"><p>{error}</p><button onClick={handleGoBack}>Go Back</button></div>;
+  if (!product) return <div className="wrapper"><p>Product not found.</p></div>;
 
-  if (loading) {
-    return (
-      <div className="product-detail-page wrapper">
-        <div className="loading">Loading product details...</div>
-      </div>
-    );
-  }
-
-  if (error || !product) {
-    return (
-      <div className="product-detail-page wrapper">
-        <div className="error">
-          <p>{error || 'Product not found'}</p>
-          <button className="btn brown-bg" onClick={handleGoBack}>
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
-
+  // --- DERIVED STATE ---
   const productImages = getProductImages();
-  const productRating = product.rating || 4.5; // Default rating
+  const stockForSelectedSize = selectedSize ? getStockForSize(selectedSize) : 0;
+  const isAddToCartDisabled = !selectedSize || stockForSelectedSize === 0;
 
+  // --- RENDER ---
   return (
-    <div className="product-detail-page">
-      <div className="wrapper">
-        <button className="back-button" onClick={handleGoBack}>
-          <FontAwesomeIcon icon={faArrowLeft} /> Back
+    <div className="product-detail" key={id}>
+      <div className="product-detail__wrapper">
+        <button className="product-detail__back-btn" onClick={handleGoBack}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span>Back</span>
         </button>
 
-        <div className="product-detail-container">
-          <div className="product-gallery">
-            <div className="main-image">
-              <img 
-                src={productImages[activeImage]} 
-                alt={product.name} 
-              />
+        <main className="product-detail__main">
+          {/* Gallery */}
+          <section className="product-detail__gallery">
+            <div className="product-detail__main-image">
+              <img src={productImages[activeImage]} alt={product.name} />
             </div>
-            
-            <div className="thumbnail-gallery">
+            <div className="product-detail__thumbnails">
               {productImages.map((img, index) => (
-                <div 
+                <img
                   key={index}
-                  className={`thumbnail ${activeImage === index ? 'active' : ''}`}
+                  src={img}
+                  alt={`${product.name} thumbnail ${index + 1}`}
+                  className={`product-detail__thumbnail ${activeImage === index ? 'active' : ''}`}
                   onClick={() => setActiveImage(index)}
-                >
-                  <img 
-                    src={img} 
-                    alt={`${product.name} - view ${index + 1}`} 
-                    onError={(e) => { e.target.src = '/images/placeholder.png'; }}
-                  />
-                </div>
+                  onError={(e) => { e.target.src = '/images/placeholder.png'; }}
+                />
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="product-info">
-            <div className="category">
-              {product.categoryName || 'Uncategorized'}
-            </div>
-            
-            <h1 className="product-name">{product.name}</h1>
-            
-            <div className="rating-container">
-              <div className="stars">
-                {renderRating(productRating)}
+          {/* Info */}
+          <section className="product-detail__info">
+            <header>
+              <p className="product-detail__category">{product.categoryName || 'Uncategorized'}</p>
+              <h1 className="product-detail__name">{product.name}</h1>
+              <div className="product-detail__rating">
+                <div className="product-detail__stars">{renderRating(product.rating || 4.5)}</div>
+                <span>({product.reviewCount || 0} reviews)</span>
               </div>
-              <span className="rating-text">
-                {productRating.toFixed(1)} ({product.reviewCount || 0} reviews)
-              </span>
-            </div>
-            
-            <div className="price">${product.price}</div>
-            
-            <div className="description">
-              {product.description}
+              <p className="product-detail__price">${product.price.toFixed(2)}</p>
+            </header>
+
+            <p className="product-detail__description">{product.description}</p>
+
+            <div className="product-detail__controls">
+              {/* Sizes */}
+              <div className="product-detail__control-group">
+                <label className="product-detail__label">Select Size:</label>
+                <div className="product-detail__size-options">
+                  {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                    <button
+                      key={size}
+                      className={`product-detail__size-btn ${selectedSize === size ? 'active' : ''}`}
+                      onClick={() => handleSizeSelect(size)}
+                      disabled={getStockForSize(size) === 0}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+                {sizeError && <p className="product-detail__error">{sizeError}</p>}
+              </div>
+
+              {/* Quantity */}
+              <div className="product-detail__control-group">
+                <label className="product-detail__label">Quantity:</label>
+                <div className="product-detail__quantity-selector">
+                  <button onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>-</button>
+                  <span>{quantity}</span>
+                  <button onClick={() => handleQuantityChange(1)} disabled={!selectedSize || quantity >= stockForSelectedSize}>+</button>
+                </div>
+              </div>
             </div>
 
-            {/* Size Selection */}
-            <div className="size-selection">
-              <span className="size-label">Select Size:</span>
-              <div className="size-options">
-                {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
-                  <button
-                    key={size}
-                    className={`size-option ${selectedSize === size ? 'active' : ''}`}
-                    onClick={() => handleSizeSelect(size)}
-                    disabled={getStockForSize(size) === 0}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-              {sizeError && <p className="size-error">{sizeError}</p>}
-            </div>
-            
-            <div className="product-meta">
-              <div className="meta-item">
-                <span className="label">SKU:</span>
-                <span className="value">{product.sku || `SKU-${product.id}`}</span>
-              </div>
-              
-              <div className="meta-item">
-                <span className="label">Availability:</span>
-                <span className={`value ${selectedSize && stockForSelectedSize > 0 ? 'in-stock' : 'out-of-stock'}`}>
-                  {selectedSize
-                    ? stockForSelectedSize > 0
-                      ? `${stockForSelectedSize} in stock`
-                      : 'Out of Stock'
-                    : 'Select a size'}
-                </span>
-              </div>
-            </div>
-            
-            <div className="add-to-cart-section">
-              <div className="quantity-selector">
-                <button 
-                  className="quantity-btn" 
-                  onClick={() => handleQuantityChange(-1)}
-                  disabled={quantity <= 1}
-                >
-                  -
-                </button>
-                <span className="quantity">{quantity}</span>
-                <button 
-                  className="quantity-btn" 
-                  onClick={() => handleQuantityChange(1)}
-                >
-                  +
-                </button>
-              </div>
-              
-              <button 
-                className="add-to-cart-btn btn brown-bg"
-                onClick={handleAddToCart}
-              >
-                <FontAwesomeIcon icon={faShoppingBag} /> Add to Cart
+            {/* Actions */}
+            <div className="product-detail__actions">
+              <button className="btn btn--primary" onClick={handleAddToCart} disabled={isAddToCartDisabled}>
+                Add to Cart
+              </button>
+              <button className="btn btn--primary" onClick={handleCheckoutNow}>
+                Checkout Now
               </button>
             </div>
-          </div>
-        </div>
 
-        {/* Product details tabs */}
-        <div className="product-tabs">
-          <div className="tab-headers">
-            <div className="tab-header active">Description</div>
-            <div className="tab-header">Specifications</div>
-            <div className="tab-header">Reviews</div>
-          </div> 
-          
-          <div className="tab-content">
-            <div className="tab-pane active">
-              <h3>Product Description</h3>
-              <p>{product.description}</p>
+            <div className="product-detail__meta">
+              <p>SKU: {product.sku || `SKU-${product.id}`}</p>
+              <p>Availability: 
+                <span className={selectedSize && stockForSelectedSize > 0 ? 'in-stock' : 'out-of-stock'}>
+                  {selectedSize ? `${stockForSelectedSize} in stock` : 'Select a size'}
+                </span>
+              </p>
             </div>
-          </div>
-        </div>
+          </section>
+        </main>
 
-        {/* Related products */}
+        {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <div className="related-products">
+          <section className="product-detail__related">
             <h2>Related Products</h2>
-            <div className="related-products-grid">
-              {relatedProducts.map(relatedProduct => (
-                <div 
-                  key={relatedProduct.id} 
-                  className="related-product-card"
-                  onClick={() => navigate(`/product/${relatedProduct.id}`)}
-                >
-                  <div className="related-product-image">
-                    <img 
-                      src={relatedProduct.image ? relatedProduct.image : '/images/placeholder.png'} 
-                      alt={relatedProduct.name} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </div>
-                  <div className="related-product-info">
-                    <h4>{relatedProduct.name}</h4>
-                    <p className="price">
-                      {typeof relatedProduct.price === 'object' 
-                        ? `$${relatedProduct.price}` 
-                        : `$${relatedProduct.price}`}
-                    </p>
+            <div className="product-detail__related-grid">
+              {relatedProducts.map(p => (
+                <div key={p.id} className="product-card" onClick={() => navigate(`/product/${p.id}`)}>
+                  <img src={p.image || '/images/placeholder.png'} alt={p.name} className="product-card__image"/>
+                  <div className="product-card__info">
+                    <h4 className="product-card__name">{p.name}</h4>
+                    <p className="product-card__price">${p.price.toFixed(2)}</p>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
         )}
+
+        {/* Reviews Section */}
+        <ProductReviews reviews={reviews} />
       </div>
     </div>
   );

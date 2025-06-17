@@ -26,26 +26,59 @@
   max-width: 1200px;
 }
 
+
+
+
 .hero-image {
-  width: 40vw;
+  width: 70vw;
   max-width: 600px;
-  margin-top: 2rem;
-  background-color: var(--gray);
-  height: 300px;
-  border-radius: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 1rem;
+  overflow: hidden;
 }
 
+
+
 .hero-image:after {
-  content: "Hero Image";
+  content: "";
   color: #999;
 }
 
-.hero-image img {
-  display: none;
+.hero-image img { 
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain; 
+  border-radius: 1rem;
 }
+
+
+/* .hero-image {
+  width: 70vw;
+  max-width: 600px;
+  aspect-ratio: 16 / 9; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  overflow: hidden;
+
+}
+
+.hero-image img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 1rem;
+} */
+
+
+
+
+
+
 
 /* Categories Section */
 .categories {
@@ -139,29 +172,69 @@
   -webkit-text-fill-color: transparent;
 }
 
-.bed-image {
+/* .bed-image {
   position: relative;
   border-radius: 1.5rem;
   overflow: hidden;
-  background-color: #f4f4f4;
-  height: 400px;
+  background-color: #ffffff;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .bed-image:after {
-  content: "Bed Image";
+  content: "";
   color: #999;
   position: absolute;
   z-index: 1;
 }
 
+
 .bed-image img {
-  display: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+} */
+
+
+.bed-image {
+  position: relative;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background-color: #ffffff;
+  height: auto; /* cho phép tự điều chỉnh theo ảnh */
+  max-height: 400px; /* hoặc chiều cao cụ thể bạn muốn */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bed-image img {
+  display: block;
+  width: auto;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain; /* quan trọng: hiển thị đủ ảnh, không cắt */
+  z-index: 0;
 }
 
-.bed-detail {
+.bed-image:after {
+  content: "";
+  color: #999;
+  position: absolute;
+  z-index: 1;
+}
+
+
+
+
+
+
+
+
+/* .bed-detail {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -171,11 +244,48 @@
   transform: translateY(100%);
   transition: transform 0.4s ease-in-out;
   z-index: 2;
+} */
+
+
+.bed-detail {
+  position: absolute;
+  top: 0rem;         /* gần sát đỉnh ảnh */
+  right: 0rem;       /* gần sát mép phải ảnh */
+  width: 300px;
+  background: #ececec;
+  border-radius: 1rem;
+  padding: 0.8rem;     /* vừa đủ bên trong */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.bed-image:hover .bed-detail {
-  transform: translateY(0);
+
+
+
+.bed-detail h6 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0 0 0.25rem 0; /* chỉ cách dưới một chút */
+  line-height: 1.2;
 }
+
+.bed-detail .small-para {
+  font-size: 0.85rem;
+  margin: -5px;
+  line-height: 1.3;
+  color: #444;
+}
+
+
+
+
+
+/* .bed-image:hover .bed-detail {
+  transform: translateY(0);
+} */
 
 /* Products Grid */
 .brown-txt {

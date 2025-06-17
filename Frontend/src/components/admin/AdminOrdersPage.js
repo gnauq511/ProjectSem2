@@ -9,6 +9,7 @@ const AdminOrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('ALL');
 
   // Status options for dropdown
   const statusOptions = [
@@ -146,13 +147,29 @@ const AdminOrdersPage = () => {
     );
   }
 
+  const filteredOrders = orders.filter(order =>
+    statusFilter === 'ALL' || order.status === statusFilter
+  );
+
   return (
     <div className="admin-orders-page">
       <h1>
         <FontAwesomeIcon icon={faShoppingCart} /> Order Management
       </h1>
+
+      <div className="order-filters">
+        {['ALL', ...statusOptions].map(status => (
+          <button
+            key={status}
+            className={`filter-btn ${statusFilter === status ? 'active' : ''}`}
+            onClick={() => setStatusFilter(status)}
+          >
+            {status === 'ALL' ? 'All' : status.charAt(0) + status.slice(1).toLowerCase()}
+          </button>
+        ))}
+      </div>
       
-      {orders.length === 0 ? (
+      {filteredOrders.length === 0 ? (
         <div className="no-orders">No orders found.</div>
       ) : (
         <table>
@@ -167,7 +184,7 @@ const AdminOrdersPage = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => (
+            {filteredOrders.map(order => (
               <React.Fragment key={order.id}>
                 <tr className={expandedOrderId === order.id ? 'expanded' : ''}>
                   <td>{order.id}</td>
@@ -183,6 +200,7 @@ const AdminOrdersPage = () => {
                       value={order.status || 'PENDING'}
                       onChange={(e) => handleStatusChange(order.id, e.target.value)}
                       className={`status-${(order.status || 'pending').toLowerCase()}`}
+                      disabled={order.status === 'DELIVERED' || order.status === 'CANCELLED'}
                     >
                       {statusOptions.map(status => (
                         <option key={status} value={status}>{status}</option>

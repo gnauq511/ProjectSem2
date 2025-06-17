@@ -8,6 +8,7 @@ public class OrderRequest {
     private String paymentMethod;
     private String transactionId;
     private List<CartItemDTO> cartItems;
+    private Double totalAmount;
 
     // Getters and Setters
     public Long getCustomerId() {
@@ -48,5 +49,13 @@ public class OrderRequest {
 
     public void setCartItems(List<CartItemDTO> cartItems) {
         this.cartItems = cartItems;
+    }
+
+    public Double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
     }
 }

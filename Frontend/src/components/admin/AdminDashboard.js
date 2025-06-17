@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faHome, faBox, faSignOutAlt, faTachometerAlt, faPlusCircle,
+  faHome, faBox, faSignOutAlt, faTachometerAlt,
   faChartLine, faDollarSign, faShoppingCart, faTruck, faBan,
   faAward, faBell, faExclamationTriangle, faLayerGroup
 } from '@fortawesome/free-solid-svg-icons';
 import AdminProductList from './AdminProductList';
-import AdminProductForm from './AdminProductForm';
 import AdminCategoryList from './AdminCategoryList';
 import AdminOrdersPage from './AdminOrdersPage';
 import '../../styles/Admin.css';
@@ -50,8 +49,7 @@ const AdminDashboard = () => {
     switch (activeSection) {
       case 'products':
         return <AdminProductList />;
-      case 'add-product':
-        return <AdminProductForm />;
+
       case 'categories':
         return <AdminCategoryList />;
       case 'orders':
@@ -234,16 +232,7 @@ const AdminDashboard = () => {
                   <FontAwesomeIcon icon={faBox} /> View Products
                 </button>
               </div>
-              <div className="stat-card">
-                <h3>New Product</h3>
-                <p>Add a new product to your store</p>
-                <button 
-                  className="admin-action-btn"
-                  onClick={() => setActiveSection('add-product')}
-                >
-                  <FontAwesomeIcon icon={faPlusCircle} /> Add Product
-                </button>
-              </div>
+
               <div className="stat-card">
                 <h3>Categories</h3>
                 <p>Manage product categories</p>
@@ -284,12 +273,7 @@ const AdminDashboard = () => {
           >
             <FontAwesomeIcon icon={faBox} /> Products
           </li>
-          <li 
-            className={activeSection === 'add-product' ? 'active' : ''}
-            onClick={() => setActiveSection('add-product')}
-          >
-            <FontAwesomeIcon icon={faPlusCircle} /> Add Product
-          </li>
+
           <li 
             className={activeSection === 'categories' ? 'active' : ''}
             onClick={() => setActiveSection('categories')}

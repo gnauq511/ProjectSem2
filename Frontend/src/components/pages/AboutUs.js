@@ -17,8 +17,7 @@ const AboutUs = () => {
         <div className="about-hero-content wrapper">
           <h1>About Our Story</h1>
           <p>
-            Established in 2010, hihihi is a premium furniture design studio 
-            dedicated to creating elegant, functional, and sustainable home decor.
+            Founded in 2010, Thread & Co. is a luxury fashion design studio, creating elegant, sophisticated and sustainable clothing collections. We offer minimalist yet inspiring designs that combine modern beauty and high functionality, allowing the wearer to express their personal style naturally and confidently every day.
           </p>
         </div>
       </div>
@@ -33,19 +32,13 @@ const AboutUs = () => {
           <div className="about-content">
             <h2 className="h2-heading brown-txt">Our Story</h2>
             <p>
-              Founded by a team of passionate designers with a vision to blend 
-              Scandinavian minimalism with modern functionality, hihihi has grown 
-              into a recognized brand in the furniture industry.
+              Thread & Co. was founded by a group of passionate fashion designers with a vision to combine Scandinavian minimalism with modern sophistication and ease. From our first ideas in a small atelier, we have grown into a globally recognized fashion brand.
             </p>
             <p>
-              What started as a small workshop has evolved into a global design 
-              studio with a commitment to quality craftsmanship, sustainable 
-              practices, and timeless design that enhances everyday living.
+              With a commitment to quality craftsmanship, sustainable details and timeless design, Thread & Co. creates clothes that not only look great but truly elevate the everyday experience of the wearer.
             </p>
             <p>
-              Today, our pieces can be found in homes, offices, and commercial 
-              spaces around the world, bringing our design philosophy to diverse 
-              environments and lifestyles.
+              Today, our collections can be found in the wardrobes of customers all over the world, from urban streets to modern offices and creative spaces, reflecting our lean yet inspiring design philosophy in every stitch.
             </p>
           </div>
         </div>
@@ -63,9 +56,7 @@ const AboutUs = () => {
               </div>
               <h3>Design Excellence</h3>
               <p>
-                We believe in creating furniture that balances aesthetic beauty 
-                with practical functionality, ensuring each piece is both a joy 
-                to look at and a pleasure to use.
+                We believe that fashion should be a harmonious combination of aesthetics and practicality. Each design of Thread & Co. is not only visually appealing but also brings comfort, flexibility and modern lifestyle, beautiful to look at, confident to wear.
               </p>
             </div>
             
@@ -87,9 +78,7 @@ const AboutUs = () => {
               </div>
               <h3>Quality Craftsmanship</h3>
               <p>
-                Every piece is crafted with meticulous attention to detail, 
-                using traditional woodworking techniques combined with 
-                modern technology.
+                Each of our fashion products is meticulously crafted down to the last stitch, combining traditional tailoring techniques with modern technology. The precision in every detail reflects our commitment to quality and lasting sophistication.
               </p>
             </div>
             
@@ -110,10 +99,12 @@ const AboutUs = () => {
       
       {/* Team Section */}
       <section className="team-section wrapper">
-        <h2 className="h2-heading text-center">Meet Our Team</h2>
+        <h2 className="h2-heading" style={{ textAlign: "center", width: "100%", display: "block" }}>
+  Meet Our Team
+</h2>
+
         <p className="text-center team-intro">
-          Our diverse team of designers, craftspeople, and specialists share a 
-          passion for exceptional furniture and customer service.
+          Our team of designers, skilled tailors and creative professionals share a passion for high-quality fashion and an exceptional customer experience.
         </p>
         
         <div className="team-grid">
@@ -121,43 +112,46 @@ const AboutUs = () => {
             <div className="member-image">
               <img src="/images/team-1.jpg" alt="Team member" />
             </div>
-            <h3>Emma Johnson</h3>
-            <p>Founder & Lead Designer</p>
+            <h3>Vương Đức Hải</h3>
           </div>
           
           <div className="team-member">
             <div className="member-image">
               <img src="/images/team-2.jpg" alt="Team member" />
             </div>
-            <h3>David Chen</h3>
-            <p>Creative Director</p>
+            <h3>Lê Văn Hùng</h3>
           </div>
           
           <div className="team-member">
             <div className="member-image">
               <img src="/images/team-3.jpg" alt="Team member" />
             </div>
-            <h3>Sophie Martins</h3>
-            <p>Master Craftsperson</p>
+            <h3>Lưu Minh Đức</h3>
           </div>
           
           <div className="team-member">
             <div className="member-image">
-              <img src="/images/team-4.jpg" alt="Team member" />
+              <img src="/images/team-1.jpg" alt="Team member" />
             </div>
-            <h3>Michael Brooks</h3>
-            <p>Materials Specialist</p>
+            <h3>Vũ Hoàng Nam</h3>
           </div>
+
+          <div className="team-member">
+            <div className="member-image">
+              <img src="/images/team-2.jpg" alt="Team member" />
+            </div>
+            <h3>Vũ Đức Quang</h3>
+          </div>
+
         </div>
       </section>
       
       {/* CTA Section */}
       <section className="cta-section">
         <div className="wrapper">
-          <h2>Ready to Transform Your Space?</h2>
+          <h2>Ready to refresh your style?</h2>
           <p>
-            Browse our collection of handcrafted furniture pieces or get in touch 
-            with our design team for custom projects.
+            Explore our exquisite handcrafted fashion collection or contact our design team to create unique outfits that suit your personality and needs.
           </p>
           <div className="cta-buttons">
             <Link to="/collection" className="btn brown-bg">View Collection</Link>

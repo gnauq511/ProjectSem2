@@ -12,7 +12,7 @@ public class ProductImporter {
     public static void main(String[] args) {
         String jdbcURL = "jdbc:mysql://localhost:3306/projectsem2";
         String username = "root";
-        String excelFilePath = "D:\\projectSem2BullXit\\ProjectSem2\\Backend\\SpringBootBackend\\ProjectSEM2\\src\\main\\resources\\static\\imge.xlsx";
+        String excelFilePath = "D:\\projectSem2BullXitnew\\ProjectSem2\\Backend\\SpringBootBackend\\ProjectSEM2\\src\\main\\resources\\static\\imgs.xlsx";
 
         try (Connection conn = DriverManager.getConnection(jdbcURL, username, "");
              FileInputStream inputStream = new FileInputStream(new File(excelFilePath));

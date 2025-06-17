@@ -1,5 +1,6 @@
 package com.project.controller;
 
+import com.project.dto.CustomerDetailsDTO;
 import com.project.model.Customer;
 import com.project.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,11 @@ public class CustomerController {
         List<Customer> customers = customerService.getAllCustomers();
         return ResponseEntity.ok(customers);
     }
-    public ResponseEntity<?> getCustomerById(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getCustomerDetails(@PathVariable Long id) {
         try {
-            Customer customer = customerService.getCustomerById(id);
-            return ResponseEntity.ok(customer);
+            CustomerDetailsDTO customerDetails = customerService.getCustomerDetailsById(id);
+            return ResponseEntity.ok(customerDetails);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

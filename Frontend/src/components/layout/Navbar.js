@@ -108,13 +108,11 @@ const Navbar = () => {
 
         <ul className={`navlist ${menuOpen ? 'navlist-active' : ''}`} id="list">
           <li><Link to="/collection" className="link">Collection</Link></li>
-          <li><Link to="/furniture" className="link">Furniture</Link></li>
-          <li><Link to="/designers" className="link">Designers</Link></li>
           <li><Link to="/feedback" className="link">Feedback</Link></li>
           <li><Link to="/about" className="link">About Us</Link></li>
           <li><Link to="/contact" className="link">Contact Us</Link></li>
 
-          <ul className="social-icons">
+          {/* <ul className="social-icons">
             <li><a href="https://facebook.com" className="icon" target="_blank" rel="noopener noreferrer">
               <FontAwesomeIcon icon={['fab', 'facebook-f']} />
             </a></li>
@@ -127,7 +125,7 @@ const Navbar = () => {
             <li><a href="https://instagram.com" className="icon" target="_blank" rel="noopener noreferrer">
               <FontAwesomeIcon icon={['fab', 'instagram']} />
             </a></li>
-          </ul>
+          </ul> */}
         </ul>
 
         <ul className="nav-icons flex">

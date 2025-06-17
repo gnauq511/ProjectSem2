@@ -60,29 +60,31 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderDate(LocalDateTime.now());
         order.setStatus("PENDING");
         List<OrderItem> orderItems = new ArrayList<>();
-        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal subtotal = BigDecimal.ZERO;
 
         for (CartItemDTO itemDTO : orderRequest.getCartItems()) {
-            Product product = productRepository.findById(itemDTO.getId()).get(); // Already checked, so .get() is safe
+            Product product = productRepository.findById(itemDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + itemDTO.getId()));
+
+            // Add to subtotal
+            subtotal = subtotal.add(product.getPrice().multiply(new BigDecimal(itemDTO.getQuantity())));
             
             OrderItem orderItem = new OrderItem();
             orderItem.setProduct(product);
             orderItem.setQuantity(itemDTO.getQuantity());
-            orderItem.setPrice(product.getPrice());
+            orderItem.setPrice(product.getPrice()); // This is the price per item, which is correct
             orderItem.setSize(itemDTO.getSize());
             orderItem.setOrder(order);
             orderItems.add(orderItem);
-
-            totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(itemDTO.getQuantity())));
         }
 
         order.setOrderItems(orderItems);
-        order.setTotalAmount(totalAmount);
+        order.setTotalAmount(subtotal); // Use the total amount from the request
 
         // Create and associate the Payment record
         Payment payment = new Payment();
         payment.setOrder(order);
-        payment.setAmount(totalAmount);
+        payment.setAmount(subtotal);
         payment.setPaymentDate(LocalDateTime.now());
 
         String paymentMethod = orderRequest.getPaymentMethod();
@@ -143,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderById(orderId);
 
         // Update stock only when status changes to "SHIPPED" to prevent double-deduction
-        if ("SHIPPED".equalsIgnoreCase(status) && !"SHIPPED".equalsIgnoreCase(order.getStatus())) {
+        if ("SHIPPED    ".equalsIgnoreCase(status) && !"SHIPPED".equalsIgnoreCase(order.getStatus())) {
             for (OrderItem item : order.getOrderItems()) {
                 Product product = item.getProduct();
                 int quantity = item.getQuantity();
