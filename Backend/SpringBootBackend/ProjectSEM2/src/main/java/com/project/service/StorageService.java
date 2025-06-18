@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -22,16 +24,20 @@ public class StorageService {
         }
     }
 
-    public String store(MultipartFile file) {
+    public String store(MultipartFile file, Long userId) {
         if (file.isEmpty()) {
             return null;
         }
 
         try {
-            String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            // Generate filename in format: user{userId}_{date}_{randomString}
+            String dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            String randomStr = UUID.randomUUID().toString();
+            String filename = String.format("user%d_%s_%s_%s",
+                userId, dateStr, randomStr, file.getOriginalFilename());
+            
             Files.copy(file.getInputStream(), this.rootLocation.resolve(filename));
-            // Return the full URL to access the file
-            return "http://localhost:8080/uploads/" + filename;
+            return filename;
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);
         }

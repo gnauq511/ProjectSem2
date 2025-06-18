@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faUser, 
@@ -9,9 +9,11 @@ import {
   faCheck,
   faBuilding
 } from '@fortawesome/free-solid-svg-icons';
+import emailjs from '@emailjs/browser';
 import '../../styles/Forms.css';
 
 const ContactForm = () => {
+  const formRef = useRef();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,38 +24,38 @@ const ContactForm = () => {
   
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Simple validation
+
     if (!formData.name || !formData.email || !formData.message) {
       setError('Please fill in all required fields');
       return;
     }
-    
-    // Basic email validation
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address');
       return;
     }
-    
-    // Clear any previous errors
+
     setError('');
-    
-    // Simulate form submission
-    setTimeout(() => {
-      console.log('Contact form submitted:', formData);
-      setSubmitted(true);
-    }, 1000);
+
+    emailjs.sendForm('service_z5yjp5r', 'template_gjjhtwm', formRef.current, 'rGVsJw0W2hv_YmbQZ')
+      .then(() => {
+        setSubmitted(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        setError('Failed to send message. Please try again.');
+      });
   };
-  
+
   if (submitted) {
     return (
       <div className="form-container">
@@ -66,13 +68,7 @@ const ContactForm = () => {
           <button 
             className="form-button"
             onClick={() => {
-              setFormData({
-                name: '',
-                email: '',
-                phone: '',
-                subject: '',
-                message: '',
-              });
+              setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
               setSubmitted(false);
             }}
           >
@@ -82,43 +78,43 @@ const ContactForm = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="page-container">
       <div className="contact-header">
         <h1>Contact Us</h1>
         <p>Get in touch with our team for any questions or inquiries</p>
       </div>
-      
+
       <div className="contact-container">
         <div className="contact-info">
           <h3>Our Information</h3>
           <p>Feel free to reach out to us using any of the contact methods below.</p>
-          
+
           <div className="contact-detail">
             <FontAwesomeIcon icon={faMapMarkerAlt} />
             <div>
               <h4>Address</h4>
-              <p>123 Furniture Street, Design District<br />New York, NY 10001</p>
+              <p>13, Trinh Van Bo, Nam Tu Liem, Ha Noi</p>
             </div>
           </div>
-          
+
           <div className="contact-detail">
             <FontAwesomeIcon icon={faPhone} />
             <div>
               <h4>Phone</h4>
-              <p>(123) 456-7890</p>
+              <p>+84 966 666 666</p>
             </div>
           </div>
-          
+
           <div className="contact-detail">
             <FontAwesomeIcon icon={faEnvelope} />
             <div>
               <h4>Email</h4>
-              <p>info@hihihi.com</p>
+              <p>threadandco@gmail.com</p>
             </div>
           </div>
-          
+
           <div className="contact-detail">
             <FontAwesomeIcon icon={faBuilding} />
             <div>
@@ -127,16 +123,16 @@ const ContactForm = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="form-card contact-form">
           <div className="form-header">
             <h2>Send Us a Message</h2>
             <p>We'll get back to you as soon as possible</p>
           </div>
-          
+
           {error && <div className="error-message">{error}</div>}
-          
-          <form onSubmit={handleSubmit}>
+
+          <form onSubmit={handleSubmit} ref={formRef}>
             <div className="form-group">
               <label htmlFor="name">
                 <FontAwesomeIcon icon={faUser} /> Your Name <span className="required">*</span>
@@ -150,7 +146,7 @@ const ContactForm = () => {
                 placeholder="Enter your name"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="email">
                 <FontAwesomeIcon icon={faEnvelope} /> Email Address <span className="required">*</span>
@@ -164,7 +160,7 @@ const ContactForm = () => {
                 placeholder="Enter your email"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="phone">
                 <FontAwesomeIcon icon={faPhone} /> Phone Number
@@ -178,7 +174,7 @@ const ContactForm = () => {
                 placeholder="Enter your phone number (optional)"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="subject">Subject</label>
               <input
@@ -190,7 +186,7 @@ const ContactForm = () => {
                 placeholder="What is this regarding?"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="message">
                 Your Message <span className="required">*</span>
@@ -204,7 +200,7 @@ const ContactForm = () => {
                 rows="5"
               ></textarea>
             </div>
-            
+
             <button type="submit" className="form-button">
               <FontAwesomeIcon icon={faPaperPlane} /> Send Message
             </button>
@@ -215,4 +211,4 @@ const ContactForm = () => {
   );
 };
 
-export default ContactForm; 
+export default ContactForm;

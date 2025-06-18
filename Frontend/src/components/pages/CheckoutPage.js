@@ -32,7 +32,7 @@ const CheckoutPage = () => {
     zipCode: '',
     notes: ''
   });
-  const [saveInfo, setSaveInfo] = useState(false);
+  const [saveInfo] = useState(false);
   const [customerId, setCustomerId] = useState(null);
   const [selectedAddressId, setSelectedAddressId] = useState(null); // To handle order creation
   const [errors, setErrors] = useState({});
@@ -42,7 +42,7 @@ const CheckoutPage = () => {
       showAlert('No items to checkout. Redirecting to cart.', 'error');
       navigate('/cart');
     }
-  }, [selectedItems, navigate]);
+  }, [selectedItems, navigate, showAlert]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('currentUser');

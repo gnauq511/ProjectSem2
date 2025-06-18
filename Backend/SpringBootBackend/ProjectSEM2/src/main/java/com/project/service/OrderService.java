@@ -1,7 +1,7 @@
 package com.project.service;
 
 import com.project.model.Order;
-import com.project.model.dto.OrderRequest;
+import com.project.dto.OrderRequest;
 import java.util.List;
 import java.util.Optional;
 

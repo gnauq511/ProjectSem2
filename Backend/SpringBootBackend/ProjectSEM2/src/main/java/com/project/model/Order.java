@@ -41,6 +41,9 @@ public class Order {
     @Column(name = "order_date")
     private LocalDateTime orderDate;
 
+    @Column(name = "completed_date")
+    private LocalDateTime completedDate;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItem> orderItems;
 
@@ -118,6 +121,14 @@ public class Order {
 
     public void setOrderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
+    }
+
+    public LocalDateTime getCompletedDate() {
+        return completedDate;
+    }
+
+    public void setCompletedDate(LocalDateTime completedDate) {
+        this.completedDate = completedDate;
     }
 
     public List<OrderItem> getOrderItems() {

@@ -1,0 +1,124 @@
+.contact-page-container {
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+  }
+  
+  .contact-form-content {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .contact-form-section {
+    flex: 1 1 50%;
+    padding: 40px;
+    box-sizing: border-box;
+  }
+  
+  .contact-form-section h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+  
+  .submit-button {
+    background-color: #c0392b;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    font-weight: bold;
+  }
+  
+  .submit-button:hover {
+    background-color: #a93226;
+  }
+  
+  .contact-info-section {
+    flex: 1 1 50%;
+    padding: 40px;
+    background-color: #c0392b;
+    color: white;
+    box-sizing: border-box;
+  }
+  
+  .contact-info-section h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  .contact-info-section > p {
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+  
+  .info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  
+  .info-item .fa-icon {
+    font-size: 20px;
+    margin-right: 20px;
+    margin-top: 5px;
+    width: 20px;
+    text-align: center;
+  }
+  
+  .info-item div {
+    flex: 1;
+  }
+  
+  .info-item strong {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+  
+  .info-item p {
+    margin: 0;
+    line-height: 1.4;
+    opacity: 0.9;
+  }
+  
+  @media (max-width: 992px) {
+    .contact-form-content {
+      flex-direction: column;
+    }
+    .contact-form-section, .contact-info-section {
+      flex: 1 1 100%;
+    }
+  }

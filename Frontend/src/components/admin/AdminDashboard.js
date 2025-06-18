@@ -17,6 +17,10 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Admin Dashboard';
+  }, []);
+
+  useEffect(() => {
     // Check if user is logged in as admin
     const storedUser = localStorage.getItem('adminUser');
     if (!storedUser) {

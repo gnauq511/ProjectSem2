@@ -1,7 +1,7 @@
 package com.project.controller;
 
 import com.project.model.User;
-import com.project.model.dto.ResultUser;
+import com.project.dto.ResultUser;
 import com.project.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

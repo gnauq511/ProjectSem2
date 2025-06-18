@@ -84,10 +84,11 @@ const ProductReviews = ({ reviews }) => {
                                 <p className="review-comment">{review.comment}</p>
                                 {review.mediaUrl && (
                                     <img 
-                                        src={review.mediaUrl} 
+                                        src={`http://localhost:8080/uploads/${review.mediaUrl}`}
                                         alt="Review media" 
                                         className="review-media-thumbnail" 
-                                        onClick={() => openImageModal(review.mediaUrl)}
+                                        onClick={() => openImageModal(`http://localhost:8080/uploads/${review.mediaUrl}`)}
+                                        onError={(e) => { e.target.src = '/images/placeholder.png'; }}
                                     />
                                 )}
                             </div>

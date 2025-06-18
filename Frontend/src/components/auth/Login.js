@@ -72,8 +72,9 @@ const Login = () => {
           localStorage.setItem('currentUser', JSON.stringify(userToStore));
           setCurrentUser(userToStore);
           
-          // Navigate to home page
-          navigate('/');
+          // Navigate back to the previous page or to the home page
+          const from = location.state?.from?.pathname || '/';
+          navigate(from, { replace: true });
         } else {
           console.error('No user data in login response');
           setError('Login successful but user data is missing');

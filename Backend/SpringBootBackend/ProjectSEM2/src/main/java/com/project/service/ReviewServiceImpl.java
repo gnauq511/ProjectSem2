@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setReviewDate(LocalDateTime.now());
 
         if (mediaFile != null && !mediaFile.isEmpty()) {
-            String mediaUrl = storageService.store(mediaFile);
+            String mediaUrl = storageService.store(mediaFile, customerId);
             review.setMediaUrl(mediaUrl);
         }
 

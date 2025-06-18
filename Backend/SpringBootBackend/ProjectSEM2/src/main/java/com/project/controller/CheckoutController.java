@@ -1,8 +1,8 @@
 package com.project.controller;
 
 import com.project.model.*;
-import com.project.model.dto.CartItemDTO;
-import com.project.model.dto.OrderRequest;
+import com.project.dto.CartItemDTO;
+import com.project.dto.OrderRequest;
 import com.project.repository.AddressRepository;
 import com.project.repository.CartRepository;
 
@@ -81,7 +81,7 @@ public class CheckoutController {
      * Get all addresses for a customer
      */
     @GetMapping("/{customerId}/addresses")
-    public ResponseEntity<?> getAddresses(@PathVariable Long customerId) {
+    public ResponseEntity<?> getAddress(@PathVariable Long customerId) {
         try {
             System.out.println("[CheckoutController] Attempting to find customer with ID: " + customerId);
             // Find the customer

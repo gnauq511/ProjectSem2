@@ -140,7 +140,7 @@ const OrdersPage = () => {
                     <FontAwesomeIcon icon={faTruck} className="truck-icon"/>
                     <span className="location-start">Ha Noi, Viet Nam</span>
                     <div className="progress-dots"></div>
-                    <span className="est-arrival">{order.status === 'DELIVERED' ? 'Order Completed: ' : 'Estimated arrival: '}{new Date(new Date(order.orderDate).getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'})}</span>
+                    <span className="est-arrival">{order.status === 'DELIVERED' ? `Order Completed: ${new Date(order.completedDate || order.orderDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}` : `Estimated arrival: ${new Date(new Date(order.orderDate).getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}</span>
                     <div className="progress-dots"></div>
                     <FontAwesomeIcon icon={faMapMarkerAlt} className="location-icon"/>
                     <span className="location-end">{order.address?.city||'Your House'}, {order.address?.country || 'N/A'}</span>

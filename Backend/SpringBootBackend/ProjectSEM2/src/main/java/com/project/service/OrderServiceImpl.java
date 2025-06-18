@@ -1,8 +1,8 @@
 package com.project.service;
 
 import com.project.model.*;
-import com.project.model.dto.CartItemDTO;
-import com.project.model.dto.OrderRequest;
+import com.project.dto.CartItemDTO;
+import com.project.dto.OrderRequest;
 import com.project.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -162,6 +162,11 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setStatus(status);
+
+        if ("DELIVERED".equalsIgnoreCase(status)) {
+            order.setCompletedDate(LocalDateTime.now());
+        }
+
         return orderRepository.save(order);
     }
 

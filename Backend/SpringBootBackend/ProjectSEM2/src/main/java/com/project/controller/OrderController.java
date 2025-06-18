@@ -1,7 +1,7 @@
 package com.project.controller;
 
 import com.project.model.Order;
-import com.project.model.dto.OrderRequest;
+import com.project.dto.OrderRequest;
 import com.project.service.OrderService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/orders")

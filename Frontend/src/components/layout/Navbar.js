@@ -154,9 +154,6 @@ const Navbar = () => {
                     <div className="user-menu-item user-info">
                       <span>Hi, {currentUser.username}</span>
                     </div>
-                    <Link to="/profile" className="user-menu-item">
-                      <FontAwesomeIcon icon={faUser} /> Profile
-                    </Link>
                     <Link to="/orders" className="user-menu-item">
                       <FontAwesomeIcon icon={faShoppingBag} /> My Orders
                     </Link>

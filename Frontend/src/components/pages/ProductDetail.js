@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faStar, faStarHalfAlt } from '@fortawesome/free-solid-svg-icons';
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
@@ -14,6 +14,7 @@ const ProductDetail = () => {
   // --- STATE AND HOOKS ---
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToCart } = useContext(CartContext);
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -75,11 +76,11 @@ const ProductDetail = () => {
     return stock[keyCamelCase] || stock[keyLowerCase] || 0;
   };
 
-  const getProductImages = () => {
+  const getProductImages = useCallback(() => {
     if (!product) return [];
     const images = [product.image, product.imageView2, product.imageView3, product.imageView4].filter(Boolean);
     return images.length > 0 ? images : ['/images/placeholder.png'];
-  };
+  }, [product]);
 
   // --- EVENT HANDLERS ---
   const handleGoBack = () => navigate(-1);
@@ -97,16 +98,30 @@ const ProductDetail = () => {
     }
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(() => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+      toast.error('Please log in to add items to your cart.');
+      sessionStorage.setItem('pendingAction', JSON.stringify({ type: 'ADD_TO_CART', productId: product.id, quantity, size: selectedSize }));
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     if (!selectedSize) {
       toast.error('Please select a size.');
       return;
     }
     addToCart(product, quantity, selectedSize);
     toast.success(`${product.name} added to cart!`);
-  };
+  }, [addToCart, location, navigate, product, quantity, selectedSize]);
 
-  const handleCheckoutNow = () => {
+  const handleCheckoutNow = useCallback(() => {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+      toast.error('Please log in to check out.');
+      sessionStorage.setItem('pendingAction', JSON.stringify({ type: 'CHECKOUT', productId: product.id, quantity, size: selectedSize }));
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     if (!selectedSize) {
       toast.error('Please select a size.');
       return;
@@ -126,7 +141,31 @@ const ProductDetail = () => {
 
     // Navigate to checkout, passing the item in the state
     navigate('/checkout', { state: { items: [itemForCheckout] } });
-  };
+  }, [addToCart, getProductImages, location, navigate, product, quantity, selectedSize]);
+
+  // --- PENDING ACTION AFTER LOGIN ---
+  useEffect(() => {
+    const pendingAction = JSON.parse(sessionStorage.getItem('pendingAction'));
+    // Ensure product is loaded before checking for pending action
+    if (pendingAction && product && pendingAction.productId === product.id) {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      if (currentUser) {
+        // Restore state from pending action
+        setSelectedSize(pendingAction.size);
+        setQuantity(pendingAction.quantity);
+
+        // Defer the action to allow the state to update
+        setTimeout(() => {
+          if (pendingAction.type === 'ADD_TO_CART') {
+            handleAddToCart();
+          } else if (pendingAction.type === 'CHECKOUT') {
+            handleCheckoutNow();
+          }
+          sessionStorage.removeItem('pendingAction');
+        }, 100);
+      }
+    }
+  }, [product, handleAddToCart, handleCheckoutNow]);
 
   // --- RENDER FUNCTIONS ---
   const renderRating = (rating) => {

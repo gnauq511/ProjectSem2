@@ -3,7 +3,7 @@ package com.project.service;
 import com.project.model.Cart;
 import com.project.model.Customer;
 import com.project.model.User;
-import com.project.model.dto.ResultUser;
+import com.project.dto.ResultUser;
 import com.project.repository.CartRepository;
 import com.project.repository.CustomerRepository;
 import com.project.repository.UserRepository;
